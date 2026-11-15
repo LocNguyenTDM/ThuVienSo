@@ -1,0 +1,217 @@
+@model ThuVienSo.Models.TaiLieu
+@{
+    ViewBag.Title = Model.TenTaiLieu;
+
+    var coQuyenTai = ViewBag.CoQuyenTai != null && (bool)ViewBag.CoQuyenTai;
+    var laQuanTri = ViewBag.LaQuanTri != null && (bool)ViewBag.LaQuanTri;
+    var giaoDichDangXuLy = ViewBag.GiaoDichDangXuLy as ThuVienSo.Models.GiaoDich;
+    var tonTaiPdf = ViewBag.TonTaiPdf != null && (bool)ViewBag.TonTaiPdf;
+    var tonTaiWord = ViewBag.TonTaiWord != null && (bool)ViewBag.TonTaiWord;
+    var nhanDinhDang = ViewBag.NhanDinhDang as string;
+    var daDangNhap = PhienDangNhap.DaDangNhap;
+
+    var mauNhan = Model.MienPhi ? "bg-success" : "bg-danger";
+    var nhanGia = Model.MienPhi ? "MIỄN PHÍ" : "TRẢ PHÍ";
+}
+
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-warning rounded-4 d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>@TempData["Loi"]</span>
+    </div>
+}
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-success rounded-4 d-flex align-items-center gap-2">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>@TempData["ThongBao"]</span>
+    </div>
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")" class="text-decoration-none">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="text-decoration-none">Kho E-Book</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.TenTaiLieu</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <!-- Ảnh bìa & hành động -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="ebook-cover rounded-4 mb-3" style="height: 260px;">
+                <span class="ebook-tag text-white @mauNhan">@nhanGia</span>
+                <i class="bi bi-file-earmark-text text-white" style="font-size: 5rem;"></i>
+            </div>
+
+            <div class="text-center mb-3">
+                <div class="h4 fw-bold text-dark mb-1">@Model.GiaHienThi</div>
+                <small class="text-muted">Định dạng: @(string.IsNullOrEmpty(nhanDinhDang) ? "TÀI LIỆU" : nhanDinhDang)</small>
+            </div>
+
+            <!-- Điều kiện truy cập: giúp người đọc biết rõ trước khi thực hiện -->
+            <div class="border rounded-3 p-3 mb-3 bg-light">
+                <div class="fw-bold text-dark small mb-2"><i class="bi bi-clipboard-check text-primary me-1"></i>Điều kiện truy cập</div>
+                <ul class="list-unstyled small mb-0 d-grid gap-2">
+                    <li class="d-flex align-items-center gap-2">
+                        <i class="bi @(Model.QuyenDocOnline ? "bi-check-circle-fill text-success" : "bi-x-circle-fill text-secondary")"></i>
+                        <span>Đọc trực tuyến: <strong>@(Model.QuyenDocOnline ? "Được phép" : "Không hỗ trợ")</strong></span>
+                    </li>
+                    <li class="d-flex align-items-center gap-2">
+                        <i class="bi @(Model.QuyenTai ? "bi-check-circle-fill text-success" : "bi-x-circle-fill text-secondary")"></i>
+                        <span>Tải về máy: <strong>@(Model.QuyenTai ? "Được phép" : "Không cho phép")</strong>@(Model.QuyenTai && !Model.MienPhi ? " (cần mua quyền)" : "")</span>
+                    </li>
+                    <li class="d-flex align-items-center gap-2">
+                        <i class="bi @(Model.MienPhi ? "bi-gift-fill text-success" : "bi-currency-exchange text-danger")"></i>
+                        <span>Chi phí: <strong class="@(Model.MienPhi ? "text-success" : "text-danger")">@nhanGia</strong>@(!Model.MienPhi ? " — " + Model.GiaHienThi : "")</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="d-grid gap-2">
+                @if (Model.QuyenDocOnline)
+                {
+                    <a href="@Url.Action("TaiLieuSo", "NguoiDoc", new { id = Model.Id })" class="btn btn-outline-primary fw-bold py-2 rounded-3">
+                        <i class="bi bi-book-half me-1"></i>Đọc trực tuyến
+                    </a>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-outline-secondary fw-bold py-2 rounded-3" disabled>
+                        <i class="bi bi-slash-circle me-1"></i>Không hỗ trợ đọc online
+                    </button>
+                }
+
+                @if (laQuanTri && coQuyenTai)
+                {
+                    <div class="alert alert-info small py-2 px-3 mb-2">
+                        <i class="bi bi-shield-lock me-1"></i>Bạn đang xem với quyền quản trị: tải tệp để kiểm tra, không cần mua quyền.
+                    </div>
+                }
+
+                @if (!Model.QuyenTai && !laQuanTri)
+                {
+                    <button type="button" class="btn btn-outline-secondary fw-bold py-2 rounded-3" disabled>
+                        <i class="bi bi-slash-circle me-1"></i>Tài liệu không cho phép tải
+                    </button>
+                }
+                else if (coQuyenTai)
+                {
+                    <div class="d-grid gap-2">
+                        @if (tonTaiPdf)
+                        {
+                            <a href="@Url.Action("Tai", "NguoiDoc", new { id = Model.Id, dinhDang = "pdf" })" class="btn btn-success fw-bold py-2 rounded-3">
+                                <i class="bi bi-file-earmark-pdf-fill me-1"></i>Tải bản PDF
+                            </a>
+                        }
+                        @if (tonTaiWord)
+                        {
+                            <a href="@Url.Action("Tai", "NguoiDoc", new { id = Model.Id, dinhDang = "docx" })" class="btn btn-info text-white fw-bold py-2 rounded-3">
+                                <i class="bi bi-file-earmark-word-fill me-1"></i>Tải bản Word
+                            </a>
+                        }
+                        @if (!tonTaiPdf && !tonTaiWord)
+                        {
+                            <button type="button" class="btn btn-secondary fw-bold py-2 rounded-3" disabled>
+                                <i class="bi bi-exclamation-circle me-1"></i>Tệp đang được cập nhật
+                            </button>
+                        }
+                    </div>
+                }
+                else if (!daDangNhap)
+                {
+                    <a href="@Url.Action("DangNhap", "Account", new { returnUrl = Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = Model.Id }) })" class="btn btn-primary fw-bold py-2 rounded-3">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập để mua quyền tải
+                    </a>
+                }
+                else if (giaoDichDangXuLy != null)
+                {
+                    <a href="@Url.Action("KetQuaGiaoDich", "NguoiDoc", new { id = giaoDichDangXuLy.Id })" class="btn btn-warning text-dark fw-bold py-2 rounded-3">
+                        <i class="bi bi-hourglass-split me-1"></i>Giao dịch đang chờ thanh toán
+                    </a>
+                }
+                else if (PhienDangNhap.LaNguoiDoc)
+                {
+                    <a href="@Url.Action("MuaTaiLieu", "NguoiDoc", new { id = Model.Id })" class="btn btn-danger fw-bold py-2 rounded-3">
+                        <i class="bi bi-cart-check me-1"></i>Mua quyền tải
+                    </a>
+                }
+                else
+                {
+                    <span class="badge bg-light text-dark border py-3">Tài khoản không thuộc vai trò người đọc</span>
+                }
+            </div>
+
+            @if (!tonTaiPdf && !tonTaiWord)
+            {
+                <div class="alert alert-warning small mt-3 mb-0">
+                    <i class="bi bi-exclamation-triangle me-1"></i>Tệp tài liệu chưa được tải lên máy chủ. Vui lòng liên hệ thủ thư.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Thông tin chi tiết -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <span class="badge @mauNhan bg-opacity-75 mb-2 align-self-start">@nhanGia</span>
+            <h2 class="fw-bold text-dark mb-3">@Model.TenTaiLieu</h2>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 h-100">
+                        <small class="text-muted d-block mb-1"><i class="bi bi-person me-1"></i>Tác giả</small>
+                        <strong class="text-dark">@(Model.TacGia != null && !string.IsNullOrEmpty(Model.TacGia.TenTacGia) ? Model.TacGia.TenTacGia : "Đang cập nhật")</strong>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 h-100">
+                        <small class="text-muted d-block mb-1"><i class="bi bi-tags me-1"></i>Thể loại</small>
+                        <strong class="text-dark">@(Model.TheLoai != null && !string.IsNullOrEmpty(Model.TheLoai.TenTheLoai) ? Model.TheLoai.TenTheLoai : "Chưa phân loại")</strong>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 h-100">
+                        <small class="text-muted d-block mb-1"><i class="bi bi-file-earmark me-1"></i>Định dạng tệp</small>
+                        <strong class="text-dark">@(string.IsNullOrEmpty(nhanDinhDang) ? "TÀI LIỆU" : nhanDinhDang)</strong>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 h-100">
+                        <small class="text-muted d-block mb-1"><i class="bi bi-shield-check me-1"></i>Trạng thái quyền</small>
+                        @if (coQuyenTai)
+                        {
+                            <strong class="text-success">Bạn đã có quyền tải</strong>
+                        }
+                        else if (Model.MienPhi)
+                        {
+                            <strong class="text-success">Tài liệu miễn phí</strong>
+                        }
+                        else
+                        {
+                            <strong class="text-danger">Chưa có quyền tải</strong>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-2"><i class="bi bi-card-text text-primary me-2"></i>Mô tả tài liệu</h5>
+            <p class="text-muted" style="white-space: pre-line;">
+                @(string.IsNullOrWhiteSpace(Model.MoTa) ? "Tài liệu chưa có mô tả chi tiết." : Model.MoTa)
+            </p>
+
+            <hr class="my-4">
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="@Url.Action("TimKiemSach", "NguoiDoc", new { theLoaiId = Model.TheLoaiId })" class="btn btn-sm btn-outline-primary fw-bold rounded-pill">
+                    <i class="bi bi-collection me-1"></i>Xem tài liệu cùng thể loại
+                </a>
+                <a href="@Url.Action("LichSuMuon", "NguoiDoc")" class="btn btn-sm btn-outline-secondary fw-bold rounded-pill">
+                    <i class="bi bi-clock-history me-1"></i>Lịch sử của tôi
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

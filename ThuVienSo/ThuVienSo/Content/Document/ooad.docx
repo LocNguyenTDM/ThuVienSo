@@ -1,0 +1,32 @@
+NGUYÊN LÝ THIẾT KẾ PHẦN MỀM
+============================
+Tác giả: Ian Sommerville
+Thể loại: Công nghệ thông tin
+Lưu ý: tài liệu này chỉ cho phép TẢI VỀ, không hỗ trợ đọc trực tuyến.
+
+CHƯƠNG 1. KHẢO SÁT YÊU CẦU
+Yêu cầu chức năng mô tả hệ thống phải làm gì.
+Yêu cầu phi chức năng mô tả ràng buộc về hiệu năng, bảo mật, khả dụng.
+Đặc tả yêu cầu là cơ sở để lập kế hoạch kiểm thử và nghiệm thu.
+
+CHƯƠNG 2. KIẾN TRÚC HỆ THỐNG
+Kiến trúc phân lớp tách giao diện, nghiệp vụ và truy cập dữ liệu.
+Mô hình ba lớp kinh điển gồm Presentation, Business Logic và Data Access.
+Nguyên lý phụ thuộc một chiều giúp hạn chế ảnh hưởng khi thay đổi tầng dưới.
+
+CHƯƠNG 3. MẪU THIẾT KẾ
+Mẫu Repository giúp tách logic truy vấn khỏi logic nghiệp vụ.
+Mẫu Singleton đảm bảo chỉ tồn tại một thực thể dùng chung.
+Mẫu Unit of Work nhóm nhiều thao tác dữ liệu trong cùng một giao dịch.
+
+CHƯƠNG 4. SƠ ĐỒ UML
+Sơ đồ lớp mô tả thuộc tính, phương thức và quan hệ giữa các lớp.
+Sơ đồ tuần tự mô tả tương tác theo thời gian giữa các đối tượng.
+Sơ đồ ca sử dụng mô tả chức năng dưới góc nhìn người dùng.
+
+CHƯƠNG 5. KIỂM THỬ PHẦN MỀM
+Kiểm thử đơn vị kiểm tra từng hàm, từng lớp độc lập.
+Kiểm thử tích hợp kiểm tra sự phối hợp giữa các thành phần.
+Kiểm thử chấp nhận xác nhận hệ thống đáp ứng yêu cầu nghiệp vụ.
+
+--- Tài liệu mẫu dùng cho website thư viện số ---

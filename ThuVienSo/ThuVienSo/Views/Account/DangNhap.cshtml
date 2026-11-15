@@ -1,0 +1,87 @@
+@model ThuVienSo.Models.ViewModels.DangNhapViewModel
+@{
+    ViewBag.Title = "Đăng nhập - Thư Viện Số";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <div class="text-center mb-4">
+                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex mb-3">
+                    <i class="bi bi-person-lock display-5"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">Đăng nhập hệ thống</h4>
+                <p class="text-muted small mb-0">Sử dụng email đã đăng ký để truy cập tủ sách cá nhân.</p>
+            </div>
+
+            @if (TempData["ThongBaoThanhCong"] != null)
+            {
+                <div class="alert alert-success small py-2">
+                    <i class="bi bi-check-circle me-1"></i>@TempData["ThongBaoThanhCong"]
+                </div>
+            }
+
+            @if (TempData["ThongBaoDangNhap"] != null)
+            {
+                <div class="alert alert-warning small py-2 d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>@TempData["ThongBaoDangNhap"]</span>
+                </div>
+            }
+
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger small py-2" })
+
+            @using (Html.BeginForm("DangNhap", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "row g-3" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="col-12">
+                    @Html.LabelFor(m => m.Email, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "user@domain.com", autofocus = "autofocus" })
+                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small d-block" })
+                </div>
+
+                <div class="col-12">
+                    @Html.LabelFor(m => m.MatKhau, new { @class = "form-label fw-bold" })
+                    <div class="input-group">
+                        @Html.PasswordFor(m => m.MatKhau, new { @class = "form-control", placeholder = "Nhập mật khẩu", id = "matKhauDangNhap" })
+                        <button class="btn btn-outline-secondary" type="button" data-hien-mat-khau="matKhauDangNhap" title="Hiện/ẩn mật khẩu">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    @Html.ValidationMessageFor(m => m.MatKhau, "", new { @class = "text-danger small d-block" })
+                </div>
+
+                <div class="col-12 d-grid">
+                    <button type="submit" class="btn btn-primary fw-bold py-2 rounded-3">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                    </button>
+                </div>
+            }
+
+            <hr class="my-4">
+            <p class="text-center text-muted small mb-0">
+                Chưa có tài khoản?
+                <a href="@Url.Action("DangKy", "Account")" class="fw-bold text-decoration-none">Đăng ký ngay</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // Hiện/ẩn mật khẩu cho ô nhập mật khẩu đăng nhập.
+        document.querySelectorAll('[data-hien-mat-khau]').forEach(function (nut) {
+            nut.addEventListener('click', function () {
+                var o = document.getElementById(nut.getAttribute('data-hien-mat-khau'));
+                if (!o) { return; }
+                var dangAn = o.type === 'password';
+                o.type = dangAn ? 'text' : 'password';
+                var icon = nut.querySelector('i');
+                if (icon) {
+                    icon.className = dangAn ? 'bi bi-eye-slash' : 'bi bi-eye';
+                }
+            });
+        });
+    </script>
+}

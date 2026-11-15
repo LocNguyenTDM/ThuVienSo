@@ -1,0 +1,34 @@
+LẬP TRÌNH C# CĂN BẢN
+=====================
+Tác giả: Andrew Hunt
+Thể loại: Công nghệ thông tin
+
+CHƯƠNG 1. BIẾN VÀ KIỂU DỮ LIỆU
+C# là ngôn ngữ lập trình hướng đối tượng chạy trên nền .NET.
+Kiểu giá trị gồm int, double, bool, char, struct; kiểu tham chiếu gồm class, string, array.
+Từ khoá var cho phép suy luận kiểu dữ liệu ngay tại thời điểm biên dịch.
+
+CHƯƠNG 2. CÂU LỆNH ĐIỀU KHIỂN VÀ VÒNG LẶP
+Câu lệnh if, else, switch điều khiển luồng thực thi của chương trình.
+Vòng lặp for, while, do-while và foreach dùng để duyệt tập hợp dữ liệu.
+Câu lệnh break và continue giúp thoát hoặc bỏ qua một vòng lặp.
+
+CHƯƠNG 3. LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG TRONG C#
+Lớp trong C# hỗ trợ thuộc tính (property), phương thức và hàm khởi tạo.
+Từ khoá access modifier: public, private, protected, internal.
+Kế thừa, đa hình, lớp trừu tượng và interface là nền tảng thiết kế phần mềm.
+
+CHƯƠNG 4. LINQ VÀ LẬP TRÌNH BẤT ĐỒNG BỘ
+LINQ cho phép truy vấn tập hợp dữ liệu bằng cú pháp gần với SQL.
+Các toán tử thường dùng: Where, Select, OrderBy, GroupBy, Join.
+Async và await hỗ trợ lập trình bất đồng bộ, giúp ứng dụng không bị treo giao diện.
+
+VÍ DỤ MINH HOẠ
+public class Sach
+{
+    public int Id { get; set; }
+    public string TenSach { get; set; }
+    public decimal GiaBan { get; set; }
+}
+
+--- Tài liệu mẫu dùng cho website thư viện số ---

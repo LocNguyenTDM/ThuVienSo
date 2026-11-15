@@ -1,0 +1,179 @@
+@{
+    ViewBag.Title = "Bảng điều khiển Thủ thư";
+
+    var soLuongChoDuyet = (int)(ViewBag.SoLuongChoDuyet ?? 0);
+    var tongTaiLieu = (int)(ViewBag.TongTaiLieu ?? 0);
+    var taiLieuNgungHoatDong = (int)(ViewBag.TaiLieuNgungHoatDong ?? 0);
+    var luotXemHomNay = (int)(ViewBag.LuotXemHomNay ?? 0);
+    var luotTaiHomNay = (int)(ViewBag.LuotTaiHomNay ?? 0);
+    var luotXem30Ngay = (int)(ViewBag.LuotXem30Ngay ?? 0);
+    var luotTai30Ngay = (int)(ViewBag.LuotTai30Ngay ?? 0);
+    var doanhThu30Ngay = (long)(ViewBag.DoanhThu30Ngay ?? 0L);
+    var soGiaoDich30Ngay = (int)(ViewBag.SoGiaoDich30Ngay ?? 0);
+    var topTaiLieu = ViewBag.TopTaiLieu as List<ThuVienSo.Models.ThongKeTaiLieu> ?? new List<ThuVienSo.Models.ThongKeTaiLieu>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="bi bi-journal-plus text-success me-2"></i>Quản Lý Nội Dung & Tài Liệu Số</h2>
+        <p class="text-muted mb-0">Theo dõi kho tài liệu, duyệt nội dung đóng góp và lưu lượng đọc/tải thực tế của thư viện.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="@Url.Action("QuanLySach", "ThuThu")" class="btn btn-success fw-bold"><i class="bi bi-cloud-upload me-1"></i>Thêm / Quản lý tài liệu</a>
+        <a href="@Url.Action("DuyetTaiLieu", "ThuThu")" class="btn btn-outline-warning fw-bold"><i class="bi bi-check2-square me-1"></i>Duyệt tài liệu (@soLuongChoDuyet)</a>
+    </div>
+</div>
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-success rounded-4 border-0 shadow-sm mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["ThongBao"]
+    </div>
+}
+
+<!-- Số liệu tổng quan (lấy trực tiếp từ CSDL) -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-primary border-4">
+            <span class="text-muted small fw-semibold">Tài liệu đang phát hành</span>
+            <h3 class="fw-bold text-primary my-1">@tongTaiLieu.ToString("#,##0") <span class="fs-6 fw-normal text-muted">tài liệu</span></h3>
+            <small class="text-muted">@taiLieuNgungHoatDong tài liệu đang ngừng hoạt động</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-warning border-4">
+            <span class="text-muted small fw-semibold">Tài liệu chờ duyệt</span>
+            <h3 class="fw-bold text-warning my-1">@soLuongChoDuyet <span class="fs-6 fw-normal text-muted">tài liệu</span></h3>
+            @if (soLuongChoDuyet > 0)
+            {
+                <small><a href="@Url.Action("DuyetTaiLieu", "ThuThu")" class="text-warning fw-bold text-decoration-none">Duyệt ngay <i class="bi bi-arrow-right"></i></a></small>
+            }
+            else
+            {
+                <small class="text-muted">Không có tài liệu nào đang chờ</small>
+            }
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-success border-4">
+            <span class="text-muted small fw-semibold">Lượt đọc (30 ngày)</span>
+            <h3 class="fw-bold text-success my-1">@luotXem30Ngay.ToString("#,##0") <span class="fs-6 fw-normal text-muted">lượt</span></h3>
+            <small class="text-muted">Hôm nay: @luotXemHomNay.ToString("#,##0") lượt</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-danger border-4">
+            <span class="text-muted small fw-semibold">Lượt tải (30 ngày)</span>
+            <h3 class="fw-bold text-danger my-1">@luotTai30Ngay.ToString("#,##0") <span class="fs-6 fw-normal text-muted">lượt</span></h3>
+            <small class="text-muted">Hôm nay: @luotTaiHomNay.ToString("#,##0") lượt</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card lib-card p-3 bg-white d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small fw-semibold d-block">Doanh thu 30 ngày</span>
+                <h4 class="fw-bold text-dark my-1">@doanhThu30Ngay.ToString("#,##0") đ</h4>
+            </div>
+            <a href="@Url.Action("BaoCaoLuuLuong", "ThuThu")" class="btn btn-sm btn-outline-primary rounded-pill fw-bold">Xem báo cáo</a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card lib-card p-3 bg-white d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small fw-semibold d-block">Giao dịch mua quyền thành công (30 ngày)</span>
+                <h4 class="fw-bold text-dark my-1">@soGiaoDich30Ngay.ToString("#,##0") giao dịch</h4>
+            </div>
+            <a href="@Url.Action("BaoCaoLuuLuong", "ThuThu")" class="btn btn-sm btn-outline-primary rounded-pill fw-bold">Chi tiết</a>
+        </div>
+    </div>
+</div>
+
+<!-- Top tài liệu theo lưu lượng -->
+<div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+    <div class="card-body">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-graph-up-arrow text-success me-2"></i>Tài liệu được đọc/tải nhiều nhất (30 ngày)</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:60px;">#</th>
+                        <th>Tên tài liệu</th>
+                        <th class="text-center">Lượt đọc</th>
+                        <th class="text-center">Lượt tải</th>
+                        <th class="text-center">Tổng lượt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (topTaiLieu.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Chưa có dữ liệu đọc/tải trong 30 ngày gần nhất.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        var thuTu = 0;
+                        foreach (var item in topTaiLieu)
+                        {
+                            thuTu++;
+                            <tr>
+                                <td class="fw-bold text-muted">@thuTu</td>
+                                <td class="fw-semibold text-dark">@item.TenTaiLieu</td>
+                                <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success">@item.LuotXem</span></td>
+                                <td class="text-center"><span class="badge bg-danger bg-opacity-10 text-danger">@item.LuotTai</span></td>
+                                <td class="text-center fw-bold text-primary">@item.TongLuot</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Lối tắt nghiệp vụ -->
+<div class="row g-4">
+    <div class="col-md-4">
+        <a href="@Url.Action("QuanLySach", "ThuThu")" class="card lib-card p-4 text-decoration-none bg-white h-100">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 fs-3"><i class="bi bi-folder-plus"></i></div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Quản Lý Danh Mục Tài Liệu</h6>
+                    <small class="text-muted">Thêm, sửa, xoá tài liệu và tệp đính kèm</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="@Url.Action("DuyetTaiLieu", "ThuThu")" class="card lib-card p-4 text-decoration-none bg-white h-100">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-3 fs-3"><i class="bi bi-shield-check"></i></div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Duyệt / Từ chối Đóng góp</h6>
+                    <small class="text-muted">Phê duyệt hoặc từ chối kèm lý do</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="@Url.Action("BaoCaoLuuLuong", "ThuThu")" class="card lib-card p-4 text-decoration-none bg-white h-100">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 fs-3"><i class="bi bi-bar-chart-line"></i></div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Báo cáo Lưu lượng Đọc / Tải</h6>
+                    <small class="text-muted">Nhật ký đọc, tải và doanh thu theo thời gian</small>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

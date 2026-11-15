@@ -1,0 +1,130 @@
+@{
+    ViewBag.Title = "Nhật ký hoạt động hệ thống";
+
+    var danhSach = ViewBag.DanhSachNhatKy as List<NhatKyHoatDong> ?? new List<NhatKyHoatDong>();
+    var danhSachNguoiDung = ViewBag.DanhSachNguoiDung as List<NguoiDung> ?? new List<NguoiDung>();
+
+    var tuNgay = (DateTime)(ViewBag.TuNgay ?? DateTime.Today.AddDays(-29));
+    var denNgay = (DateTime)(ViewBag.DenNgay ?? DateTime.Today);
+    var userIdLoc = ViewBag.UserId as int?;
+    var tuKhoa = ViewBag.TuKhoa as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="bi bi-journal-text text-info me-2"></i>Nhật Ký Hoạt Động Hệ Thống</h2>
+        <p class="text-muted mb-0">Theo dõi các sự kiện quan trọng: đăng nhập, xem/tải tài liệu, thêm/sửa/xóa tài liệu và thay đổi quyền.</p>
+    </div>
+</div>
+
+@Html.Partial("_AdminNav")
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+<!-- Bộ lọc -->
+<div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+    <div class="card-body">
+        @using (Html.BeginForm("NhatKyHoatDong", "Admin", FormMethod.Get, new { @class = "row g-2 align-items-end" }))
+        {
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small">Từ ngày</label>
+                <input type="date" name="tuNgay" value="@tuNgay.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small">Đến ngày</label>
+                <input type="date" name="denNgay" value="@denNgay.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small">Người thực hiện</label>
+                <select name="userId" class="form-select">
+                    <option value="">-- Tất cả người dùng --</option>
+                    @foreach (var nd in danhSachNguoiDung)
+                    {
+                        <option value="@nd.Id" @(userIdLoc == nd.Id ? "selected" : null)>@nd.TenHienThi (@nd.NhanVaiTro)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small">Từ khóa</label>
+                <input type="text" name="tuKhoa" value="@tuKhoa" class="form-control" placeholder="Nội dung hành động..." />
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-info fw-bold text-white" title="Lọc nhật ký"><i class="bi bi-funnel"></i></button>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Danh sách nhật ký -->
+<div class="card border-0 shadow-sm rounded-4 bg-white">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-list-check text-primary me-2"></i>Hoạt động ghi nhận</h5>
+        <span class="badge bg-primary bg-opacity-10 text-primary">@danhSach.Count dòng</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive" style="max-height: 640px; overflow-y: auto;">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light sticky-top">
+                    <tr>
+                        <th class="ps-3" style="width:170px;">Thời gian</th>
+                        <th>Người thực hiện</th>
+                        <th>Vai trò</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (danhSach.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">Không có hoạt động nào phù hợp với bộ lọc.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var nk in danhSach)
+                        {
+                            var nguoiDung = nk.NguoiDung;
+                            var vaiTroBadge = nguoiDung == null
+                                ? "bg-secondary"
+                                : (nguoiDung.LaAdmin ? "bg-danger" : (nguoiDung.LaThuThu ? "bg-success" : "bg-primary"));
+
+                            <tr>
+                                <td class="ps-3 text-nowrap">
+                                    @(nk.ThoiGian.HasValue ? nk.ThoiGian.Value.ToString("dd/MM/yyyy HH:mm:ss") : "—")
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">
+                                        @(nguoiDung != null ? nguoiDung.TenHienThi : "Khách / Hệ thống")
+                                    </div>
+                                    @if (nguoiDung != null && !string.IsNullOrEmpty(nguoiDung.Email))
+                                    {
+                                        <small class="text-muted">@nguoiDung.Email</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (nguoiDung != null && !string.IsNullOrEmpty(nguoiDung.VaiTro))
+                                    {
+                                        <span class="badge @vaiTroBadge">@nguoiDung.NhanVaiTro</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td class="small">@nk.HanhDong</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white small text-muted">
+        Khoảng thời gian: @tuNgay.ToString("dd/MM/yyyy") – @denNgay.ToString("dd/MM/yyyy"). Hiển thị tối đa 500 hoạt động gần nhất.
+    </div>
+</div>

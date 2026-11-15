@@ -1,0 +1,300 @@
+@{
+    ViewBag.Title = "Quản lý người dùng & phân quyền";
+
+    var danhSach = ViewBag.DanhSachNguoiDung as List<NguoiDung> ?? new List<NguoiDung>();
+    var tuKhoa = ViewBag.TuKhoa as string;
+    var vaiTroLoc = ViewBag.VaiTro as string;
+    var trangThaiLoc = ViewBag.TrangThai as string;
+
+    var tongNguoiDung = (int)(ViewBag.TongNguoiDung ?? 0);
+    var soHoatDong = (int)(ViewBag.SoHoatDong ?? 0);
+    var soBiKhoa = (int)(ViewBag.SoBiKhoa ?? 0);
+    var soQuanTri = (int)(ViewBag.SoQuanTri ?? 0);
+
+    var idDangNhap = PhienDangNhap.LayId();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="bi bi-people-fill text-danger me-2"></i>Quản Lý Người Dùng &amp; Phân Quyền</h2>
+        <p class="text-muted mb-0">Xem, cập nhật thông tin, khóa/mở khóa tài khoản và gán vai trò sử dụng hệ thống.</p>
+    </div>
+</div>
+
+@Html.Partial("_AdminNav")
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-success rounded-4 border-0 shadow-sm">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["ThongBao"]
+    </div>
+}
+
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>@TempData["Loi"]
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-primary border-4">
+            <span class="text-muted small fw-semibold">Tổng tài khoản</span>
+            <h4 class="fw-bold text-primary my-1">@tongNguoiDung.ToString("#,##0")</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-success border-4">
+            <span class="text-muted small fw-semibold">Đang hoạt động</span>
+            <h4 class="fw-bold text-success my-1">@soHoatDong.ToString("#,##0")</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-warning border-4">
+            <span class="text-muted small fw-semibold">Tài khoản bị khóa</span>
+            <h4 class="fw-bold text-warning my-1">@soBiKhoa.ToString("#,##0")</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-danger border-4">
+            <span class="text-muted small fw-semibold">Quản trị viên</span>
+            <h4 class="fw-bold text-danger my-1">@soQuanTri.ToString("#,##0")</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Bộ lọc -->
+<div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+    <div class="card-body">
+        @using (Html.BeginForm("QuanLyNguoiDung", "Admin", FormMethod.Get, new { @class = "row g-2 align-items-end" }))
+        {
+            <div class="col-md-5">
+                <label class="form-label fw-semibold small">Từ khóa</label>
+                <input type="text" name="tuKhoa" value="@tuKhoa" class="form-control"
+                       placeholder="Mã tài khoản, họ tên, email hoặc số điện thoại..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small">Vai trò</label>
+                <select name="vaiTro" class="form-select">
+                    <option value="">-- Tất cả vai trò --</option>
+                    <option value="@HangSoHeThong.VaiTro.NguoiDoc" @(vaiTroLoc == HangSoHeThong.VaiTro.NguoiDoc ? "selected" : null)>Người đọc</option>
+                    <option value="@HangSoHeThong.VaiTro.ThuThu" @(vaiTroLoc == HangSoHeThong.VaiTro.ThuThu ? "selected" : null)>Thủ thư</option>
+                    <option value="@HangSoHeThong.VaiTro.Admin" @(vaiTroLoc == HangSoHeThong.VaiTro.Admin ? "selected" : null)>Quản trị viên</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small">Trạng thái</label>
+                <select name="trangThai" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="@HangSoHeThong.TrangThaiNguoiDung.HoatDong" @(trangThaiLoc == HangSoHeThong.TrangThaiNguoiDung.HoatDong ? "selected" : null)>Đang hoạt động</option>
+                    <option value="@HangSoHeThong.TrangThaiNguoiDung.BiKhoa" @(trangThaiLoc == HangSoHeThong.TrangThaiNguoiDung.BiKhoa ? "selected" : null)>Đã bị khóa</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-danger fw-bold"><i class="bi bi-funnel me-1"></i>Lọc dữ liệu</button>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Danh sách tài khoản -->
+<div class="card border-0 shadow-sm rounded-4 bg-white">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Mã</th>
+                        <th>Họ và tên</th>
+                        <th>Email / Số điện thoại</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (danhSach.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Không có tài khoản phù hợp với bộ lọc.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var nd in danhSach)
+                        {
+                            var laChinhMinh = idDangNhap.HasValue && nd.Id == idDangNhap.Value;
+                            var vaiTroBadge = nd.LaAdmin ? "bg-danger" : (nd.LaThuThu ? "bg-success" : "bg-primary");
+
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">#@nd.Id</td>
+                                <td>
+                                    <div class="fw-bold text-dark">
+                                        @nd.TenHienThi
+                                        @if (laChinhMinh)
+                                        {
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary ms-1">Bạn</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small">@nd.Email</div>
+                                    <small class="text-muted">@nd.SoDienThoai</small>
+                                </td>
+                                <td><span class="badge @vaiTroBadge">@nd.NhanVaiTro</span></td>
+                                <td>
+                                    @if (nd.DangHoatDong)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle me-1"></i>Đang hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-lock-fill me-1"></i>Đã bị khóa</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-3">
+                                    <button type="button" class="btn btn-sm btn-outline-primary fw-bold btn-sua"
+                                            title="Xem và cập nhật thông tin"
+                                            data-id="@nd.Id"
+                                            data-hoten="@nd.HoTen"
+                                            data-email="@nd.Email"
+                                            data-sodienthoai="@nd.SoDienThoai"
+                                            data-vaitro="@nd.VaiTro"
+                                            data-trangthai="@nd.TrangThai"
+                                            data-chinhminh="@(laChinhMinh ? "1" : "0")"
+                                            data-bs-toggle="modal" data-bs-target="#modalCapNhatNguoiDung">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+
+                                    @if (nd.DangHoatDong)
+                                    {
+                                        <form action="@Url.Action("KhoaTaiKhoan", "Admin")" method="post" class="d-inline"
+                                              onsubmit="return confirm('Khóa tài khoản @nd.Email? Người dùng sẽ không thể đăng nhập và phiên hiện tại sẽ bị chấm dứt.');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@nd.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-warning fw-bold" title="Khóa tài khoản"
+                                                    @(laChinhMinh ? "disabled" : null)>
+                                                <i class="bi bi-lock-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form action="@Url.Action("MoKhoaTaiKhoan", "Admin")" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@nd.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-success fw-bold" title="Mở khóa tài khoản">
+                                                <i class="bi bi-unlock-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white small text-muted">
+        Hiển thị tối đa 500 tài khoản. Quyền hạn được kiểm tra ở máy chủ trước khi lưu:
+        không thể tự hạ quyền, tự khóa hoặc làm mất quản trị viên hoạt động cuối cùng.
+    </div>
+</div>
+
+<!-- Modal cập nhật tài khoản -->
+<div class="modal fade" id="modalCapNhatNguoiDung" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            @using (Html.BeginForm("CapNhatNguoiDung", "Admin", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="capNhatId" />
+
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-gear me-2"></i>Cập nhật tài khoản &amp; phân quyền</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="canhBaoChinhMinh" class="alert alert-warning small rounded-3 d-none">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                        Đây là tài khoản đang đăng nhập. Bạn không thể tự hạ quyền hoặc tự khóa tài khoản này.
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Họ và tên</label>
+                            <input type="text" class="form-control" name="HoTen" id="capNhatHoTen" required maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control" name="Email" id="capNhatEmail" required maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Số điện thoại</label>
+                            <input type="text" class="form-control" name="SoDienThoai" id="capNhatSoDienThoai"
+                                   required pattern="[0-9]{9,15}" title="Số điện thoại gồm 9 đến 15 chữ số" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Vai trò hệ thống</label>
+                            <select class="form-select" name="VaiTro" id="capNhatVaiTro" required>
+                                <option value="@HangSoHeThong.VaiTro.NguoiDoc">Người đọc (NGUOI_DOC)</option>
+                                <option value="@HangSoHeThong.VaiTro.ThuThu">Thủ thư (THU_THU)</option>
+                                <option value="@HangSoHeThong.VaiTro.Admin">Quản trị viên (ADMIN)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Trạng thái tài khoản</label>
+                            <select class="form-select" name="TrangThai" id="capNhatTrangThai" required>
+                                <option value="@HangSoHeThong.TrangThaiNguoiDung.HoatDong">Đang hoạt động</option>
+                                <option value="@HangSoHeThong.TrangThaiNguoiDung.BiKhoa">Khóa tài khoản</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="small text-muted">
+                                Thay đổi vai trò có hiệu lực ngay ở lần truy cập tiếp theo của người dùng.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger fw-bold">
+                        <i class="bi bi-check-lg me-1"></i>Lưu thay đổi
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        (function ($) {
+            $('.btn-sua').on('click', function () {
+                var $btn = $(this);
+
+                $('#capNhatId').val($btn.attr('data-id'));
+                $('#capNhatHoTen').val($btn.attr('data-hoten'));
+                $('#capNhatEmail').val($btn.attr('data-email'));
+                $('#capNhatSoDienThoai').val($btn.attr('data-sodienthoai'));
+                $('#capNhatVaiTro').val($btn.attr('data-vaitro'));
+                $('#capNhatTrangThai').val($btn.attr('data-trangthai'));
+
+                if ($btn.attr('data-chinhminh') === '1') {
+                    $('#canhBaoChinhMinh').removeClass('d-none');
+                } else {
+                    $('#canhBaoChinhMinh').addClass('d-none');
+                }
+            });
+        })(jQuery);
+    </script>
+}

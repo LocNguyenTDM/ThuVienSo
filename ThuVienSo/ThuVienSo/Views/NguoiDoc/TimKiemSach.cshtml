@@ -1,0 +1,195 @@
+@{
+    ViewBag.Title = "Kho E-Book & Tìm Kiếm Tài Liệu Số - Độc Giả";
+
+    var danhSachTaiLieu = ViewBag.DanhSachTaiLieu as List<TaiLieu> ?? new List<TaiLieu>();
+    var danhSachTheLoai = ViewBag.DanhSachTheLoai as List<TheLoai> ?? new List<TheLoai>();
+
+    var tuKhoa = ViewBag.TuKhoa as string;
+    var theLoaiDangChon = ViewBag.TheLoaiId as int?;
+    var dinhDangDangChon = ViewBag.DinhDang as string;
+    var phamViDangChon = ViewBag.PhamVi as string;
+    var coDieuKienLoc = ViewBag.CoDieuKienLoc as bool? ?? false;
+
+    var tenPhamVi = phamViDangChon == "ten" ? "Tên tài liệu"
+        : (phamViDangChon == "tacgia" ? "Tác giả" : "Từ khóa (mọi trường)");
+
+    var bieuTuong = new[] { "bi-journal-code", "bi-code-slash", "bi-diagram-3", "bi-database" };
+    var nenThe = new[]
+    {
+        "",
+        "background: linear-gradient(135deg, #065f46 0%, #047857 100%);",
+        "background: linear-gradient(135deg, #78350f 0%, #b45309 100%);",
+        "background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);"
+    };
+    var mauNut = new[] { "btn-primary", "btn-success", "btn-warning text-dark", "btn-info text-white" };
+    var mauNhan = new[]
+    {
+        "bg-primary bg-opacity-10 text-primary",
+        "bg-success bg-opacity-10 text-success",
+        "bg-warning bg-opacity-10 text-dark",
+        "bg-info bg-opacity-10 text-info"
+    };
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark mb-2"><i class="bi bi-grid-fill text-primary me-2"></i>Kho E-Book & Tài Liệu Số Trực Tuyến</h2>
+    <p class="text-muted mb-0">Tìm tài liệu theo tên, tác giả, thể loại hoặc từ khóa. Mỗi tài liệu đều ghi rõ giá và điều kiện đọc/tải trước khi bạn thực hiện.</p>
+</div>
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-warning rounded-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+<!-- ================= BỘ LỌC TÌM KIẾM THƯỜNG ================= -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-search text-primary me-2"></i>Tìm kiếm tài liệu</h6>
+
+    <form class="row g-3" method="get" action="@Url.Action("TimKiemSach", "NguoiDoc")">
+        <div class="col-md-6 col-lg-4">
+            <label class="form-label fw-bold">Từ khóa:</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" name="tuKhoa" value="@tuKhoa" class="form-control"
+                       placeholder="Nhập tên sách, tác giả, chủ đề...">
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-2">
+            <label class="form-label fw-bold">Tìm theo:</label>
+            <select class="form-select" name="phamVi">
+                <option value="">Mọi trường</option>
+                <option value="ten" @(phamViDangChon == "ten" ? "selected" : "")>Tên tài liệu</option>
+                <option value="tacgia" @(phamViDangChon == "tacgia" ? "selected" : "")>Tác giả</option>
+            </select>
+        </div>
+
+        <div class="col-md-6 col-lg-2">
+            <label class="form-label fw-bold">Thể loại:</label>
+            <select class="form-select" name="theLoaiId">
+                <option value="">Tất cả thể loại</option>
+                @foreach (var theLoai in danhSachTheLoai)
+                {
+                    <option value="@theLoai.Id" @(theLoaiDangChon == theLoai.Id ? "selected" : "")>@theLoai.TenTheLoai</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-6 col-lg-2">
+            <label class="form-label fw-bold">Định dạng:</label>
+            <select class="form-select" name="dinhDang">
+                <option value="">Tất cả định dạng</option>
+                <option value="pdf" @(dinhDangDangChon == "pdf" ? "selected" : "")>PDF Document</option>
+                <option value="epub" @(dinhDangDangChon == "epub" ? "selected" : "")>EPUB E-Book</option>
+                <option value="doc" @(dinhDangDangChon == "doc" ? "selected" : "")>Word (DOC)</option>
+                <option value="docx" @(dinhDangDangChon == "docx" ? "selected" : "")>Word (DOCX)</option>
+                <option value="txt" @(dinhDangDangChon == "txt" ? "selected" : "")>Text (TXT)</option>
+            </select>
+        </div>
+
+        <div class="col-md-6 col-lg-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
+                <i class="bi bi-search me-1"></i>Tìm kiếm
+            </button>
+        </div>
+    </form>
+
+    @if (coDieuKienLoc)
+    {
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-3 border-top">
+            <span class="text-muted small">Đang lọc:</span>
+            @if (!string.IsNullOrWhiteSpace(tuKhoa))
+            {
+                <span class="badge bg-primary bg-opacity-10 text-primary">Từ khóa: “@tuKhoa” (@tenPhamVi)</span>
+            }
+            @if (theLoaiDangChon.HasValue)
+            {
+                var tenTheLoaiDangChon = danhSachTheLoai.FirstOrDefault(t => t.Id == theLoaiDangChon.Value);
+                <span class="badge bg-success bg-opacity-10 text-success">Thể loại: @(tenTheLoaiDangChon != null ? tenTheLoaiDangChon.TenTheLoai : theLoaiDangChon.Value.ToString())</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(dinhDangDangChon))
+            {
+                <span class="badge bg-info bg-opacity-10 text-info">Định dạng: @dinhDangDangChon.ToUpperInvariant()</span>
+            }
+            <a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="btn btn-sm btn-outline-secondary rounded-pill ms-auto">
+                <i class="bi bi-x-circle me-1"></i>Xóa bộ lọc
+            </a>
+        </div>
+    }
+</div>
+
+<!-- ================= KẾT QUẢ ================= -->
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <span class="text-muted small">
+        Tìm thấy <strong class="text-primary">@danhSachTaiLieu.Count</strong> tài liệu.
+    </span>
+</div>
+
+@if (danhSachTaiLieu.Count == 0)
+{
+    <div class="card border-0 shadow-sm rounded-4 bg-white text-center py-5 px-3">
+        <i class="bi bi-search display-5 text-muted d-block mb-3"></i>
+        <h6 class="fw-bold mb-1">Không tìm thấy tài liệu phù hợp</h6>
+        <p class="text-muted small mb-3">Hãy thử từ khóa khác, hoặc đổi thể loại / định dạng tài liệu.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="btn btn-sm btn-outline-secondary fw-bold rounded-pill">
+                <i class="bi bi-x-circle me-1"></i>Xóa bộ lọc
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4 mb-4">
+        @for (var i = 0; i < danhSachTaiLieu.Count; i++)
+        {
+            var taiLieu = danhSachTaiLieu[i];
+            var nhanDinhDang = TepTaiLieuHelper.LayNhanDinhDang(taiLieu.FileUrl);
+            var mauDinhDang = nhanDinhDang == "PDF" ? "bg-danger text-white" : (nhanDinhDang == "EPUB" ? "bg-success text-white" : "bg-info text-white");
+            var chiSo = i % 4;
+
+            <div class="col-md-6 col-lg-3">
+                <div class="ebook-card h-100 d-flex flex-column">
+                    <div class="ebook-cover" style="@nenThe[chiSo]">
+                        <span class="ebook-tag @mauDinhDang"><i class="bi bi-file-earmark-pdf-fill me-1"></i>@nhanDinhDang</span>
+                        <i class="bi @bieuTuong[chiSo] display-1 text-primary opacity-75"></i>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="badge @mauNhan[chiSo] small">@(taiLieu.TheLoai != null ? taiLieu.TheLoai.TenTheLoai : "Chưa phân loại")</span>
+                            <span class="fw-bold text-primary small">@taiLieu.GiaHienThi</span>
+                        </div>
+                        <h6 class="fw-bold text-dark my-2 line-clamp-2">@taiLieu.TenTaiLieu</h6>
+                        <p class="text-muted small mb-2"><i class="bi bi-person me-1"></i>Tác giả: @(taiLieu.TacGia != null ? taiLieu.TacGia.TenTacGia : "Đang cập nhật")</p>
+
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="badge rounded-pill @(taiLieu.MienPhi ? "bg-success bg-opacity-10 text-success" : "bg-warning bg-opacity-10 text-dark")">
+                                <i class="bi bi-tag-fill me-1"></i>@(taiLieu.MienPhi ? "Miễn phí" : "Trả phí")
+                            </span>
+                            <span class="badge rounded-pill @(taiLieu.QuyenDocOnline ? "bg-primary bg-opacity-10 text-primary" : "bg-secondary bg-opacity-10 text-secondary")">
+                                <i class="bi bi-book-half me-1"></i>@(taiLieu.QuyenDocOnline ? "Đọc online" : "Không đọc online")
+                            </span>
+                            <span class="badge rounded-pill @(taiLieu.QuyenTai ? "bg-danger bg-opacity-10 text-danger" : "bg-secondary bg-opacity-10 text-secondary")">
+                                <i class="bi bi-download me-1"></i>@(taiLieu.QuyenTai ? "Được tải" : "Không cho tải")
+                            </span>
+                        </div>
+
+                        <div class="mt-auto pt-3 border-top d-flex gap-2">
+                            <a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = taiLieu.Id })" class="@("btn btn-sm flex-grow-1 fw-bold " + mauNut[chiSo])"><i class="bi bi-eye-fill me-1"></i>Xem chi tiết</a>
+                            @if (taiLieu.QuyenDocOnline)
+                            {
+                                <a href="@Url.Action("TaiLieuSo", "NguoiDoc", new { id = taiLieu.Id })" class="btn btn-outline-secondary btn-sm" title="Đọc trực tuyến"><i class="bi bi-book-half"></i></a>
+                            }
+                            else
+                            {
+                                <span class="btn btn-outline-secondary btn-sm disabled" title="Tài liệu không hỗ trợ đọc trực tuyến"><i class="bi bi-slash-circle"></i></span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

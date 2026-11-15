@@ -1,0 +1,239 @@
+@{
+    ViewBag.Title = "Tủ Sách Cá Nhân - Độc Giả";
+
+    var nguoiDung = ViewBag.NguoiDung as ThuVienSo.Models.NguoiDung;
+    var danhSachQuyenTai = ViewBag.DanhSachQuyenTai as List<ThuVienSo.Models.QuyenTaiLieu> ?? new List<ThuVienSo.Models.QuyenTaiLieu>();
+    var soQuyenTai = ViewBag.SoQuyenTai != null ? (int)ViewBag.SoQuyenTai : 0;
+    var soDaXem = ViewBag.SoDaXem != null ? (int)ViewBag.SoDaXem : 0;
+    var soGiaoDichThanhCong = ViewBag.SoGiaoDichThanhCong != null ? (int)ViewBag.SoGiaoDichThanhCong : 0;
+    var dangDocDo = ViewBag.DangDocDo as ThuVienSo.Models.LichSuTaiLieu;
+    var lichSuGanDay = ViewBag.LichSuGanDay as List<ThuVienSo.Models.LichSuTaiLieu> ?? new List<ThuVienSo.Models.LichSuTaiLieu>();
+    var loiKetNoi = ViewBag.LoiKetNoi as string;
+
+    var bieuTuong = new[] { "bi-journal-code", "bi-code-slash", "bi-diagram-3", "bi-book" };
+    var mauNen = new[] { "bg-primary", "bg-success", "bg-warning", "bg-info" };
+    var mauNut = new[] { "btn-primary", "btn-success", "btn-warning text-dark", "btn-info text-dark" };
+
+    var vaiTro = PhienDangNhap.LayVaiTro();
+    var nhanVaiTro = vaiTro == ThuVienSo.Models.HangSoHeThong.VaiTro.Admin
+        ? "Quản trị viên"
+        : (vaiTro == ThuVienSo.Models.HangSoHeThong.VaiTro.ThuThu ? "Thủ thư" : "Độc giả");
+}
+
+@if (!string.IsNullOrEmpty(loiKetNoi))
+{
+    <div class="alert alert-warning rounded-4 d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>@loiKetNoi</span>
+    </div>
+}
+
+<!-- Reader Profile Header -->
+<div class="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-primary text-white p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                <i class="bi bi-person-fill fs-2"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <h3 class="fw-bold text-dark mb-0">@(nguoiDung != null ? nguoiDung.TenHienThi : PhienDangNhap.LayHoTen())</h3>
+                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>@nhanVaiTro</span>
+                </div>
+                <p class="text-muted small mb-0 mt-1">
+                    Mã tài khoản: <strong class="text-dark">DG-@((nguoiDung != null ? nguoiDung.Id : 0).ToString("D7"))</strong>
+                    | Đã đọc: <strong class="text-primary">@soDaXem E-book</strong>
+                    | Tủ sách: <strong class="text-primary">@soQuyenTai cuốn</strong>
+                    | Giao dịch thành công: <strong class="text-primary">@soGiaoDichThanhCong</strong>
+                </p>
+            </div>
+        </div>
+        <div>
+            <a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="btn btn-primary rounded-pill px-4 fw-bold">
+                <i class="bi bi-plus-lg me-1"></i>Khám Phá Thêm E-Book
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Section 1: Continue Reading (Đang Đọc Dở) -->
+<h5 class="fw-bold text-dark mb-3"><i class="bi bi-play-circle-fill text-danger me-2"></i>E-Book Bạn Đang Đọc Dở</h5>
+
+@if (dangDocDo != null)
+{
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-white">
+        <div class="row align-items-center g-4">
+            <div class="col-md-2 text-center">
+                <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-4 display-3 d-inline-block">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <span class="badge bg-danger bg-opacity-10 text-danger mb-2">
+                    @TepTaiLieuHelper.LayNhanDinhDang(dangDocDo.TaiLieu != null ? dangDocDo.TaiLieu.FileUrl : null) • Đang đọc dở
+                </span>
+                <h5 class="fw-bold text-dark mb-1">@(dangDocDo.TaiLieu != null ? dangDocDo.TaiLieu.TenTaiLieu : "Tài liệu")</h5>
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-person me-1"></i>Tác giả: @(dangDocDo.TaiLieu != null && dangDocDo.TaiLieu.TacGia != null ? dangDocDo.TaiLieu.TacGia.TenTacGia : "Đang cập nhật")
+                    @if (dangDocDo.TaiLieu != null && dangDocDo.TaiLieu.TheLoai != null)
+                    {
+                        <span> | Thể loại: @dangDocDo.TaiLieu.TheLoai.TenTheLoai</span>
+                    }
+                </p>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-clock-history me-1"></i>Lần đọc gần nhất: <strong class="text-dark">@dangDocDo.ThoiGian.ToString("dd/MM/yyyy HH:mm")</strong>
+                </p>
+            </div>
+            <div class="col-md-3 text-end">
+                <a href="@Url.Action("TaiLieuSo", "NguoiDoc", new { id = dangDocDo.TaiLieuId })" class="btn btn-danger py-2 px-4 rounded-3 fw-bold w-100">
+                    <i class="bi bi-book-half me-1"></i>Đọc Tiếp Ngay
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-light border rounded-4 mb-5 d-flex align-items-center gap-2">
+        <i class="bi bi-info-circle text-primary"></i>
+        <span class="text-muted">Bạn chưa đọc tài liệu nào. Hãy chọn một E-Book trong kho để bắt đầu.</span>
+    </div>
+}
+
+<!-- Section 2: Saved Books / Favorite Shelf -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-bookmark-star-fill text-warning me-2"></i>Tủ Sách Đã Lưu (Quyền Tải Đã Cấp)</h5>
+    <span class="text-muted small">@soQuyenTai E-book trong tủ sách</span>
+</div>
+
+@if (danhSachQuyenTai.Count == 0)
+{
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-white text-center">
+        <p class="text-muted mb-2"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Bạn chưa sở hữu quyền tải tài liệu nào.</p>
+        <div>
+            <a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="btn btn-primary rounded-pill px-4 fw-bold">
+                <i class="bi bi-search me-1"></i>Tìm tài liệu
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4 mb-5">
+        @for (var i = 0; i < danhSachQuyenTai.Count; i++)
+        {
+            var quyen = danhSachQuyenTai[i];
+            var taiLieu = quyen.TaiLieu;
+            var viTri = i % 4;
+            var conHieuLuc = quyen.ConHieuLuc;
+
+            <div class="col-md-4">
+                <div class="card lib-card border-0 p-3 bg-white">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-3 @mauNen[viTri] bg-opacity-10 rounded-3 text-@(mauNen[viTri].Replace("bg-", "")) fs-2">
+                            <i class="bi @bieuTuong[viTri]"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold text-dark mb-1 line-clamp-1">@(taiLieu != null ? taiLieu.TenTaiLieu : "Tài liệu")</h6>
+                            <small class="text-muted d-block mb-2">
+                                File: @TepTaiLieuHelper.LayNhanDinhDang(taiLieu != null ? taiLieu.FileUrl : null)
+                                @if (taiLieu != null && taiLieu.TacGia != null)
+                                {
+                                    <span> • @taiLieu.TacGia.TenTacGia</span>
+                                }
+                            </small>
+                            <div class="d-flex gap-2">
+                                @if (conHieuLuc)
+                                {
+                                    <a href="@Url.Action("TaiLieuSo", "NguoiDoc", new { id = quyen.TaiLieuId })" class="btn btn-sm @mauNut[viTri] fw-bold flex-grow-1">
+                                        <i class="bi bi-eye me-1"></i>Đọc
+                                    </a>
+                                    <a href="@Url.Action("Tai", "NguoiDoc", new { id = quyen.TaiLieuId })" class="btn btn-sm btn-outline-danger" title="Tải về máy">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary w-100 py-2">Quyền đã bị thu hồi</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Cấp ngày: @quyen.NgayCap.ToString("dd/MM/yyyy")</small>
+                        <a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = quyen.TaiLieuId })" class="small text-decoration-none fw-bold">Chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Section 3: Hoạt động gần đây -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Truy Cập Gần Đây</h5>
+    <a href="@Url.Action("LichSuMuon", "NguoiDoc")" class="small fw-bold text-decoration-none">Xem toàn bộ lịch sử</a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 bg-white">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tên E-Book / Tài Liệu</th>
+                        <th>Hành động</th>
+                        <th>Thời gian</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (lichSuGanDay.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">Chưa có hoạt động nào được ghi nhận.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var dong in lichSuGanDay)
+                        {
+                            var taiLieu = dong.TaiLieu;
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark">@(taiLieu != null ? taiLieu.TenTaiLieu : "Tài liệu")</div>
+                                    <small class="text-muted">
+                                        @if (taiLieu != null && taiLieu.TheLoai != null)
+                                        {
+                                            <span>Thể loại: @taiLieu.TheLoai.TenTheLoai</span>
+                                        }
+                                        @if (taiLieu != null && taiLieu.TacGia != null)
+                                        {
+                                            <span> • Tác giả: @taiLieu.TacGia.TenTacGia</span>
+                                        }
+                                    </small>
+                                </td>
+                                <td>
+                                    @if (dong.HanhDong == ThuVienSo.Models.HangSoHeThong.HanhDongTaiLieu.Tai)
+                                    {
+                                        <span class="badge bg-success">Tải về</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary">Đọc trực tuyến</span>
+                                    }
+                                </td>
+                                <td>@dong.ThoiGian.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = dong.TaiLieuId })" class="btn btn-sm btn-outline-primary fw-bold">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i>Mở
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

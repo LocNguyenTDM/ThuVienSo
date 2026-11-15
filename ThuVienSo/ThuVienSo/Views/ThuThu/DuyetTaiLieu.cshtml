@@ -1,0 +1,138 @@
+@model List<ThuVienSo.Models.TaiLieu>
+@{
+    ViewBag.Title = "Duyệt tài liệu mới đóng góp";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-shield-check text-primary me-2"></i>Duyệt tài liệu mới</h2>
+            <p class="text-muted mb-0">Danh sách tài liệu do độc giả đóng góp đang chờ phê duyệt. Có thể duyệt xuất bản hoặc từ chối kèm lý do.</p>
+        </div>
+        <a href="@Url.Action("Index", "ThuThu")" class="btn btn-outline-secondary rounded-pill fw-bold">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại
+        </a>
+    </div>
+
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger rounded-4 shadow-sm border-0 mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Loi"]
+        </div>
+    }
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success rounded-4 shadow-sm border-0 mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["ThongBao"]
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-dark">
+                    <tr>
+                        <th class="ps-4 py-3">Tên tài liệu</th>
+                        <th class="py-3">Thể loại</th>
+                        <th class="py-3">Tác giả</th>
+                        <th class="py-3">Định dạng</th>
+                        <th class="py-3">Người đóng góp</th>
+                        <th class="py-3 text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || Model.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-inboxes display-4 text-muted d-block mb-3"></i>
+                                <h6 class="text-muted fw-bold">Không có tài liệu nào đang chờ duyệt</h6>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            var nhanDinhDang = ThuVienSo.Helpers.TepTaiLieuHelper.LayNhanDinhDang(item.FileUrl);
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">@item.TenTaiLieu</div>
+                                    <div class="small text-muted line-clamp-1" style="max-width: 300px;">@item.MoTa</div>
+                                </td>
+                                <td><span class="badge bg-primary bg-opacity-10 text-primary">@(item.TheLoai != null ? item.TheLoai.TenTheLoai : "N/A")</span></td>
+                                <td>@(item.TacGia != null ? item.TacGia.TenTacGia : "Đang cập nhật")</td>
+                                <td>
+                                    <span class="badge bg-info bg-opacity-10 text-info">
+                                        <i class="bi bi-file-earmark me-1"></i>@nhanDinhDang
+                                    </span>
+                                </td>
+                                <td>User ID: @item.NguoiDangId</td>
+                                <td class="text-center pe-4">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="@Url.Action("TaiLieuSo", "NguoiDoc", new { id = item.Id })" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Xem trước">
+                                            <i class="bi bi-eye"></i> Xem trước
+                                        </a>
+                                        @using (Html.BeginForm("PheDuyet", "ThuThu", new { id = item.Id }, FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="return confirm('Xác nhận phê duyệt và xuất bản tài liệu này?')">
+                                                <i class="bi bi-check-circle me-1"></i>Phê duyệt
+                                            </button>
+                                        }
+                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold"
+                                                data-bs-toggle="modal" data-bs-target="#modalTuChoi"
+                                                data-tai-lieu-id="@item.Id" data-tai-lieu-ten="@item.TenTaiLieu">
+                                            <i class="bi bi-x-circle me-1"></i>Từ chối
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal từ chối kèm lý do -->
+<div class="modal fade" id="modalTuChoi" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            @using (Html.BeginForm("TuChoi", "ThuThu", FormMethod.Post, new { @class = "mb-0" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="tuChoiTaiLieuId" value="" />
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-x-octagon me-2"></i>Từ chối tài liệu đóng góp</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">Tài liệu: <span class="fw-bold text-dark" id="tuChoiTaiLieuTen"></span></p>
+                    <label class="form-label fw-bold">Lý do từ chối <span class="text-danger">*</span></label>
+                    <textarea name="lyDo" class="form-control" rows="3" maxlength="500"
+                              placeholder="Ví dụ: Tệp không đúng định dạng, nội dung trùng lặp, chất lượng bản scan kém..."></textarea>
+                    <div class="form-text">Lý do sẽ được lưu lại và ghi vào nhật ký hoạt động để thông báo cho người đóng góp.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger fw-bold"><i class="bi bi-send me-1"></i>Xác nhận từ chối</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var modal = document.getElementById('modalTuChoi');
+        if (!modal) return;
+        modal.addEventListener('show.bs.modal', function (event) {
+            var nut = event.relatedTarget;
+            if (!nut) return;
+            document.getElementById('tuChoiTaiLieuId').value = nut.getAttribute('data-tai-lieu-id');
+            document.getElementById('tuChoiTaiLieuTen').textContent = nut.getAttribute('data-tai-lieu-ten');
+        });
+    })();
+</script>

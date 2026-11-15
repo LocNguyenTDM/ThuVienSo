@@ -1,0 +1,181 @@
+@{
+    ViewBag.Title = "Thư Viện Số - Nền Tảng Đọc E-Book & Tài Liệu Trực Tuyến";
+
+    var danhSachTaiLieu = ViewBag.DanhSachTaiLieu as List<TaiLieu> ?? new List<TaiLieu>();
+    var danhSachTheLoai = ViewBag.DanhSachTheLoai as List<TheLoai> ?? new List<TheLoai>();
+    var tongTaiLieu = ViewBag.TongTaiLieu as int? ?? 0;
+
+    var bieuTuong = new[] { "bi-journal-code", "bi-code-slash", "bi-diagram-3", "bi-database" };
+    var nenThe = new[]
+    {
+        "",
+        "background: linear-gradient(135deg, #065f46 0%, #047857 100%);",
+        "background: linear-gradient(135deg, #78350f 0%, #b45309 100%);",
+        "background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);"
+    };
+    var mauNut = new[] { "btn-primary", "btn-success", "btn-warning text-dark", "btn-info text-white" };
+    var mauNhan = new[]
+    {
+        "bg-primary bg-opacity-10 text-primary",
+        "bg-success bg-opacity-10 text-success",
+        "bg-warning bg-opacity-10 text-warning",
+        "bg-info bg-opacity-10 text-info"
+    };
+}
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-warning rounded-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+<!-- Hero Section: E-Book Marketplace Style -->
+<div class="card border-0 rounded-4 shadow-lg mb-5 overflow-hidden text-white" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);">
+    <div class="card-body p-4 p-md-5">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <span class="badge bg-warning text-dark font-weight-bold px-3 py-2 rounded-pill mb-3">
+                    <i class="bi bi-stars me-1"></i> Kho Sách Số & E-Book Không Giới Hạn
+                </span>
+                <h1 class="display-5 fw-extrabold mb-3">@tongTaiLieu E-Book, Giáo Trình & Tài Liệu PDF</h1>
+                <p class="lead text-light opacity-90 mb-4 fs-6">
+                    Đọc trực tuyến mượt mà trên mọi thiết bị. Tải về PDF/EPUB chất lượng cao mọi lúc, mọi nơi.
+                </p>
+
+                <!-- Search Bar -->
+                <div class="mb-4">
+                    <form class="input-group input-group-lg bg-white p-2 rounded-4 shadow-sm" method="get" action="@Url.Action("TimKiemSach", "NguoiDoc")">
+                        <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-search fs-5"></i></span>
+                        <input type="text" name="tuKhoa" class="form-control border-0 fs-6"
+                               placeholder="Tìm tên E-book, tác giả, thể loại..." aria-label="Từ khóa tìm kiếm">
+                        <button type="submit" class="btn btn-warning text-dark px-4 fw-bold rounded-3">
+                            <i class="bi bi-search me-2"></i>Tìm kiếm
+                        </button>
+                    </form>
+                    <p class="text-light opacity-75 small mb-0 mt-2">
+                        <i class="bi bi-robot me-1"></i>Muốn gợi ý theo mô tả? Hỏi trợ lý AI ở góc dưới màn hình.
+                    </p>
+                </div>
+
+                <!-- Instant Category Tags -->
+                <div class="d-flex flex-wrap gap-2 text-light small align-items-center">
+                    <span class="text-warning fw-bold"><i class="bi bi-fire me-1"></i>Chủ đề Hot:</span>
+                    @foreach (var theLoai in danhSachTheLoai.Take(4))
+                    {
+                        <a href="@Url.Action("TimKiemSach", "NguoiDoc", new { theLoaiId = theLoai.Id })" class="badge bg-white bg-opacity-10 text-white text-decoration-none border border-light border-opacity-25 py-2 px-3">@theLoai.TenTheLoai</a>
+                    }
+                </div>
+            </div>
+
+            <!-- Hero Book Display Graphics -->
+            <div class="col-lg-5 d-none d-lg-block text-center position-relative">
+                <div class="p-4 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-25 backdrop-blur shadow">
+                    <div class="text-warning mb-2 fs-4">⭐⭐⭐⭐⭐</div>
+                    <h5 class="fw-bold mb-1">Tài Liệu Nổi Bật Nhất</h5>
+                    @if (danhSachTaiLieu.Count > 0)
+                    {
+                        var noiBat = danhSachTaiLieu[0];
+                        <p class="small text-light mb-3">"@noiBat.TenTaiLieu"</p>
+                        <a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = noiBat.Id })" class="btn btn-warning btn-sm text-dark fw-bold px-4 rounded-pill">
+                            <i class="bi bi-book-half me-1"></i>Xem Chi Tiết
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="small text-light mb-3">Chưa có tài liệu nào trong hệ thống.</p>
+                        <a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="btn btn-warning btn-sm text-dark fw-bold px-4 rounded-pill">
+                            <i class="bi bi-book-half me-1"></i>Xem Kho Tài Liệu
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section 1: Hot E-Book Showcase -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold text-dark mb-1"><i class="bi bi-fire text-danger me-2"></i>E-Book Nổi Bật & Mới Nhất</h4>
+        <p class="text-muted small mb-0">Các đầu sách điện tử chất lượng cao được cập nhật từ hệ thống.</p>
+    </div>
+    <a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
+        Xem tất cả <i class="bi bi-chevron-right ms-1"></i>
+    </a>
+</div>
+
+@if (danhSachTaiLieu.Count == 0)
+{
+    <div class="alert alert-light border rounded-4 text-center py-5 mb-5">
+        <i class="bi bi-inboxes display-5 text-muted d-block mb-3"></i>
+        <h6 class="fw-bold mb-1">Chưa có tài liệu nào trong hệ thống</h6>
+        <p class="text-muted small mb-0">Vui lòng quay lại sau hoặc liên hệ thủ thư để bổ sung tài liệu.</p>
+    </div>
+}
+else
+{
+    <div class="row g-4 mb-5">
+        @for (var i = 0; i < danhSachTaiLieu.Count; i++)
+        {
+            var taiLieu = danhSachTaiLieu[i];
+            var nhanDinhDang = TepTaiLieuHelper.LayNhanDinhDang(taiLieu.FileUrl);
+            var mauDinhDang = nhanDinhDang == "PDF" ? "bg-danger text-white" : (nhanDinhDang == "EPUB" ? "bg-success text-white" : "bg-info text-white");
+            var chiSo = i % 4;
+
+            <div class="col-md-6 col-lg-3">
+                <div class="ebook-card h-100 d-flex flex-column">
+                    <div class="ebook-cover" style="@nenThe[chiSo]">
+                        <span class="ebook-tag @mauDinhDang"><i class="bi bi-file-earmark-pdf-fill me-1"></i>@nhanDinhDang</span>
+                        <i class="bi @bieuTuong[chiSo] display-1 text-primary opacity-75"></i>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="badge @mauNhan[chiSo] small">@(taiLieu.TheLoai != null ? taiLieu.TheLoai.TenTheLoai : "Chưa phân loại")</span>
+                            <span class="text-primary small fw-bold">@taiLieu.GiaHienThi</span>
+                        </div>
+                        <h6 class="fw-bold text-dark my-2 line-clamp-2">@taiLieu.TenTaiLieu</h6>
+                        <p class="text-muted small mb-3"><i class="bi bi-person me-1"></i>Tác giả: @(taiLieu.TacGia != null ? taiLieu.TacGia.TenTacGia : "Đang cập nhật")</p>
+                        <div class="mt-auto pt-3 border-top d-flex gap-2">
+                            <a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = taiLieu.Id })" class="@("btn btn-sm flex-grow-1 fw-bold " + mauNut[chiSo])">
+                                <i class="bi bi-eye-fill me-1"></i>Xem Chi Tiết
+                            </a>
+                            <a href="@Url.Action("TaiLieuSo", "NguoiDoc", new { id = taiLieu.Id })" class="btn btn-outline-secondary btn-sm" title="Đọc trực tuyến">
+                                <i class="bi bi-book-half"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Section 2: Why Choose Digital Library -->
+<div class="p-4 p-md-5 bg-white rounded-4 shadow-sm border mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-md-4 text-center border-end">
+            <div class="p-3 bg-primary bg-opacity-10 rounded-circle text-primary d-inline-flex mb-3">
+                <i class="bi bi-lightning-charge-fill display-5"></i>
+            </div>
+            <h5 class="fw-bold">Đọc Trực Tuyến Tức Thì</h5>
+            <p class="text-muted small mb-0">Không cần chờ đợi, đọc ngay lập tức các định dạng PDF, EPUB trực tiếp trên trình duyệt web.</p>
+        </div>
+
+        <div class="col-md-4 text-center border-end">
+            <div class="p-3 bg-success bg-opacity-10 rounded-circle text-success d-inline-flex mb-3">
+                <i class="bi bi-cloud-arrow-down-fill display-5"></i>
+            </div>
+            <h5 class="fw-bold">Tải Về Đọc Offline</h5>
+            <p class="text-muted small mb-0">Hỗ trợ tải tài liệu số về máy đọc sách, điện thoại di động hoặc máy tính bảng.</p>
+        </div>
+
+        <div class="col-md-4 text-center">
+            <div class="p-3 bg-warning bg-opacity-10 rounded-circle text-warning d-inline-flex mb-3">
+                <i class="bi bi-bookmark-heart-fill display-5"></i>
+            </div>
+            <h5 class="fw-bold">Tủ Sách Cá Nhân</h5>
+            <p class="text-muted small mb-0">Tự động lưu tiến trình đọc, danh mục sách yêu thích và lịch sử truy cập tài liệu.</p>
+        </div>
+    </div>
+</div>

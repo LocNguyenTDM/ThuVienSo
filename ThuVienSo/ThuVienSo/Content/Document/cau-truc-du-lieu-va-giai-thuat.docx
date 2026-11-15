@@ -1,0 +1,26 @@
+CẤU TRÚC DỮ LIỆU VÀ GIẢI THUẬT
+===============================
+Tác giả: Andrew Hunt
+Thể loại: Công nghệ thông tin
+
+CHƯƠNG 1. ĐỘ PHỨC TẠP THUẬT TOÁN
+Ký hiệu O lớn (Big-O) mô tả tốc độ tăng của thời gian chạy theo kích thước dữ liệu.
+Các mức thường gặp: O(1), O(log n), O(n), O(n log n), O(n^2).
+Phân tích độ phức tạp giúp lựa chọn thuật toán phù hợp trước khi tối ưu mã nguồn.
+
+CHƯƠNG 2. MẢNG VÀ DANH SÁCH LIÊN KẾT
+Mảng truy cập phần tử theo chỉ số với chi phí O(1) nhưng chèn xoá tốn O(n).
+Danh sách liên kết đơn và liên kết đôi chèn xoá nhanh nhưng truy cập tuần tự.
+Ngăn xếp (Stack) hoạt động theo LIFO, hàng đợi (Queue) hoạt động theo FIFO.
+
+CHƯƠNG 3. CÂY VÀ ĐỒ THỊ
+Cây nhị phân tìm kiếm cho phép tìm kiếm, chèn, xoá trung bình O(log n).
+Cây AVL và cây đỏ-đen tự cân bằng để tránh suy biến thành danh sách.
+Đồ thị được biểu diễn bằng ma trận kề hoặc danh sách kề; duyệt bằng BFS và DFS.
+
+CHƯƠNG 4. SẮP XẾP VÀ TÌM KIẾM
+Các thuật toán sắp xếp cơ bản: nổi bọt, chèn, chọn, trộn, nhanh, vun đống.
+Sắp xếp trộn và sắp xếp nhanh đạt O(n log n) trong trường hợp trung bình.
+Tìm kiếm nhị phân yêu cầu dữ liệu đã sắp xếp và đạt O(log n).
+
+--- Tài liệu mẫu dùng cho website thư viện số ---

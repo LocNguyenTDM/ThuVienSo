@@ -1,0 +1,125 @@
+@{
+    ViewBag.Title = "Tài Liệu Trả Phí - Thư Viện Số";
+
+    var danhSachTaiLieu = ViewBag.DanhSachTaiLieu as List<TaiLieu> ?? new List<TaiLieu>();
+    var danhSachTheLoai = ViewBag.DanhSachTheLoai as List<TheLoai> ?? new List<TheLoai>();
+
+    var tuKhoa = ViewBag.TuKhoa as string;
+    var theLoaiDangChon = ViewBag.TheLoaiId as int?;
+    var dinhDangDangChon = ViewBag.DinhDang as string;
+
+    var bieuTuong = new[] { "bi-journal-code", "bi-code-slash", "bi-diagram-3", "bi-database" };
+    var nenThe = new[]
+    {
+        "",
+        "background: linear-gradient(135deg, #065f46 0%, #047857 100%);",
+        "background: linear-gradient(135deg, #78350f 0%, #b45309 100%);",
+        "background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);"
+    };
+    var mauNut = new[] { "btn-primary", "btn-success", "btn-warning text-dark", "btn-info text-white" };
+    var mauNhan = new[]
+    {
+        "bg-primary bg-opacity-10 text-primary",
+        "bg-success bg-opacity-10 text-success",
+        "bg-warning bg-opacity-10 text-dark",
+        "bg-info bg-opacity-10 text-info"
+    };
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold text-warning mb-2"><i class="bi bi-cart-check text-warning me-2"></i>Tài Liệu Trả Phí</h2>
+    <p class="text-muted mb-0">Danh sách các tài liệu chất lượng cao, yêu cầu mua quyền truy cập hoặc tải xuống.</p>
+</div>
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-warning rounded-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+<!-- Bộ lọc -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <form class="row g-3" method="get" action="@Url.Action("TraPhi", "NguoiDoc")">
+        <div class="col-md-5">
+            <label class="form-label fw-bold">Tìm trong kho trả phí:</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" name="tuKhoa" value="@tuKhoa" class="form-control" placeholder="Nhập tên tài liệu, tác giả...">
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Thể loại:</label>
+            <select class="form-select" name="theLoaiId">
+                <option value="">Tất cả thể loại</option>
+                @foreach (var theLoai in danhSachTheLoai)
+                {
+                    <option value="@theLoai.Id" @(theLoaiDangChon == theLoai.Id ? "selected" : "")>@theLoai.TenTheLoai</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Định dạng:</label>
+            <select class="form-select" name="dinhDang">
+                <option value="">Tất cả định dạng</option>
+                <option value="pdf" @(dinhDangDangChon == "pdf" ? "selected" : "")>PDF</option>
+                <option value="epub" @(dinhDangDangChon == "epub" ? "selected" : "")>EPUB</option>
+                <option value="docx" @(dinhDangDangChon == "docx" ? "selected" : "")>DOCX</option>
+            </select>
+        </div>
+
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-warning w-100 fw-bold py-2"><i class="bi bi-filter"></i></button>
+        </div>
+    </form>
+</div>
+
+<!-- Kết quả -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted small">Tìm thấy <strong class="text-warning">@danhSachTaiLieu.Count</strong> tài liệu trả phí.</span>
+</div>
+
+@if (danhSachTaiLieu.Count == 0)
+{
+    <div class="card border-0 shadow-sm rounded-4 bg-white text-center py-5 px-3">
+        <i class="bi bi-inboxes display-5 text-muted d-block mb-3"></i>
+        <h6 class="fw-bold mb-1">Không tìm thấy tài liệu trả phí nào</h6>
+        <p class="text-muted small mb-0">Hãy thử thay đổi điều kiện lọc hoặc quay lại sau.</p>
+    </div>
+}
+else
+{
+    <div class="row g-4 mb-4">
+        @for (var i = 0; i < danhSachTaiLieu.Count; i++)
+        {
+            var taiLieu = danhSachTaiLieu[i];
+            var nhanDinhDang = TepTaiLieuHelper.LayNhanDinhDang(taiLieu.FileUrl);
+            var mauDinhDang = nhanDinhDang == "PDF" ? "bg-danger text-white" : (nhanDinhDang == "EPUB" ? "bg-success text-white" : "bg-info text-white");
+            var chiSo = i % 4;
+
+            <div class="col-md-6 col-lg-3">
+                <div class="ebook-card h-100 d-flex flex-column">
+                    <div class="ebook-cover" style="@nenThe[chiSo]">
+                        <span class="ebook-tag @mauDinhDang"><i class="bi bi-file-earmark-pdf-fill me-1"></i>@nhanDinhDang</span>
+                        <i class="bi @bieuTuong[chiSo] display-1 text-primary opacity-75"></i>
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="badge @mauNhan[chiSo] small">@(taiLieu.TheLoai != null ? taiLieu.TheLoai.TenTheLoai : "Chưa phân loại")</span>
+                            <span class="text-primary fw-bold">@taiLieu.GiaHienThi</span>
+                        </div>
+                        <h6 class="fw-bold text-dark my-2 line-clamp-2">@taiLieu.TenTaiLieu</h6>
+                        <p class="text-muted small mb-3"><i class="bi bi-person me-1"></i>Tác giả: @(taiLieu.TacGia != null ? taiLieu.TacGia.TenTacGia : "Đang cập nhật")</p>
+
+                        <div class="mt-auto pt-3 border-top d-flex gap-2">
+                            <a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = taiLieu.Id })" class="@("btn btn-sm flex-grow-1 fw-bold " + mauNut[chiSo])"><i class="bi bi-eye-fill me-1"></i>Xem chi tiết</a>
+                            <a href="@Url.Action("TaiLieuSo", "NguoiDoc", new { id = taiLieu.Id })" class="btn btn-outline-secondary btn-sm" title="Đọc trực tuyến"><i class="bi bi-book-half"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

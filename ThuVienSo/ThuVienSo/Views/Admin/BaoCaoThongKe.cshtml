@@ -1,0 +1,153 @@
+@{
+    ViewBag.Title = "Báo cáo thống kê hệ thống";
+
+    var tuNgay = (DateTime)(ViewBag.TuNgay ?? DateTime.Today.AddDays(-29));
+    var denNgay = (DateTime)(ViewBag.DenNgay ?? DateTime.Today);
+
+    var tongLuotXem = (int)(ViewBag.TongLuotXem ?? 0);
+    var tongLuotTai = (int)(ViewBag.TongLuotTai ?? 0);
+    var soThanhCong = (int)(ViewBag.SoGiaoDichThanhCong ?? 0);
+    var doanhThu = (long)(ViewBag.DoanhThu ?? 0L);
+    var soDangXuLy = (int)(ViewBag.SoDangXuLy ?? 0);
+    var soThatBai = (int)(ViewBag.SoThatBai ?? 0);
+
+    var danhSach = ViewBag.DanhSachThongKe as List<ThongKeTaiLieu> ?? new List<ThongKeTaiLieu>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Thống Kê Lượt Xem, Lượt Tải &amp; Doanh Thu</h2>
+        <p class="text-muted mb-0">Tổng hợp lưu lượng đọc/tải và doanh thu từ tài liệu trả phí theo khoảng thời gian.</p>
+    </div>
+</div>
+
+@Html.Partial("_AdminNav")
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+<!-- Bộ lọc -->
+<div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+    <div class="card-body">
+        @using (Html.BeginForm("BaoCaoThongKe", "Admin", FormMethod.Get, new { @class = "row g-2 align-items-end" }))
+        {
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small">Từ ngày</label>
+                <input type="date" name="tuNgay" value="@tuNgay.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small">Đến ngày</label>
+                <input type="date" name="denNgay" value="@denNgay.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-4 d-grid">
+                <button type="submit" class="btn btn-primary fw-bold"><i class="bi bi-funnel me-1"></i>Xem báo cáo</button>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Số liệu tổng hợp -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card lib-card p-3 bg-white border-start border-success border-4 h-100">
+            <span class="text-muted small fw-semibold">Tổng lượt xem</span>
+            <h3 class="fw-bold text-success my-1">@tongLuotXem.ToString("#,##0") <span class="fs-6 fw-normal text-muted">lượt</span></h3>
+            <small class="text-muted">Lượt đọc trực tuyến tài liệu</small>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card lib-card p-3 bg-white border-start border-info border-4 h-100">
+            <span class="text-muted small fw-semibold">Tổng lượt tải</span>
+            <h3 class="fw-bold text-info my-1">@tongLuotTai.ToString("#,##0") <span class="fs-6 fw-normal text-muted">lượt</span></h3>
+            <small class="text-muted">Lượt tải tài liệu về máy</small>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card lib-card p-3 bg-white border-start border-primary border-4 h-100">
+            <span class="text-muted small fw-semibold">Giao dịch hoàn tất</span>
+            <h3 class="fw-bold text-primary my-1">@soThanhCong.ToString("#,##0") <span class="fs-6 fw-normal text-muted">giao dịch</span></h3>
+            <small class="text-muted">
+                <span class="text-warning">@soDangXuLy đang xử lý</span> •
+                <span class="text-danger">@soThatBai thất bại</span> (không tính)
+            </small>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card lib-card p-3 bg-white border-start border-danger border-4 h-100">
+            <span class="text-muted small fw-semibold">Doanh thu</span>
+            <h3 class="fw-bold text-danger my-1">@doanhThu.ToString("#,##0") <span class="fs-6 fw-normal text-muted">đ</span></h3>
+            <small class="text-muted">Chỉ tính giao dịch THANH_CONG</small>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info rounded-4 border-0 shadow-sm small">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    Doanh thu và số giao dịch hoàn tất chỉ được tính từ các giao dịch có trạng thái <strong>THANH_CONG</strong>.
+    Giao dịch <strong>đang xử lý</strong> hoặc <strong>thất bại</strong> không được xem là giao dịch hoàn tất và không được cộng vào doanh thu.
+</div>
+
+<!-- Thống kê theo tài liệu -->
+<div class="card border-0 shadow-sm rounded-4 bg-white">
+    <div class="card-header bg-white py-3">
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-table text-primary me-2"></i>Thống kê theo từng tài liệu</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3" style="width:60px;">#</th>
+                        <th>Tên tài liệu</th>
+                        <th class="text-center">Lượt xem</th>
+                        <th class="text-center">Lượt tải</th>
+                        <th class="text-center">Tổng lượt</th>
+                        <th class="text-center">Giao dịch thành công</th>
+                        <th class="text-end pe-3">Doanh thu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (danhSach.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">Chưa có dữ liệu lưu lượng hoặc doanh thu trong khoảng thời gian này.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        var thuTu = 0;
+                        foreach (var item in danhSach)
+                        {
+                            thuTu++;
+                            <tr>
+                                <td class="ps-3 fw-bold text-muted">@thuTu</td>
+                                <td class="fw-semibold text-dark">@item.TenTaiLieu</td>
+                                <td class="text-center"><span class="badge bg-success bg-opacity-10 text-success">@item.LuotXem.ToString("#,##0")</span></td>
+                                <td class="text-center"><span class="badge bg-info bg-opacity-10 text-info">@item.LuotTai.ToString("#,##0")</span></td>
+                                <td class="text-center fw-bold text-primary">@item.TongLuot.ToString("#,##0")</td>
+                                <td class="text-center">
+                                    @if (item.SoGiaoDich > 0)
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary">@item.SoGiaoDich.ToString("#,##0")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">0</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-3 fw-bold text-danger">@item.DoanhThu.ToString("#,##0") đ</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white small text-muted">
+        Khoảng thời gian: @tuNgay.ToString("dd/MM/yyyy") – @denNgay.ToString("dd/MM/yyyy"). Hiển thị tối đa 500 tài liệu.
+    </div>
+</div>

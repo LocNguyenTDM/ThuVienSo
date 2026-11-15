@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "Cấu Hình Hệ Thống & Quy Định - Admin";
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold text-dark mb-2"><i class="bi bi-gear-fill text-secondary me-2"></i>Cấu Hình Tham Số & Quy Định Thư Viện</h2>
+    <p class="text-muted">Điều chỉnh các tham số mượn/trả, mức phạt quá hạn, thời gian giữ sách và thiết lập sao lưu dữ liệu.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Form Quy Định Mượn Trả -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-sliders text-danger me-2"></i>1. Cấu hình Quy định Mượn - Trả</h5>
+            </div>
+            <div class="card-body p-4">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Số sách tối đa 1 độc giả được mượn:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" value="5">
+                                <span class="input-group-text">Cuốn</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Thời hạn mượn mặc định:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" value="14">
+                                <span class="input-group-text">Ngày</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Số lần được phép gia hạn sách:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" value="2">
+                                <span class="input-group-text">Lần</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Số ngày gia hạn thêm mỗi lần:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" value="7">
+                                <span class="input-group-text">Ngày</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-danger">Mức phí phạt quá hạn (mỗi cuốn/ngày):</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control fw-bold text-danger" value="5000">
+                                <span class="input-group-text">VNĐ / Ngày</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Thời gian giữ sách khi đăng ký Online:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" value="48">
+                                <span class="input-group-text">Giờ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <button type="button" class="btn btn-danger py-2 px-4 fw-bold" onclick="alert('Đã lưu quy định mượn trả thành công!')">
+                            <i class="bi bi-save me-1"></i>Lưu Thay Đổi Quy Định
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup & System Maintenance -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-database-fill-gear text-primary me-2"></i>2. Sao Lưu & Bảo Trì Hệ Thống</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Lần sao lưu gần nhất:</label>
+                    <p class="text-success fw-bold mb-1"><i class="bi bi-check-circle-fill me-1"></i> 19/10/2024 - 02:00 AM (Tự động)</p>
+                    <small class="text-muted">Dung lượng bản sao lưu: 145.8 MB</small>
+                </div>
+
+                <div class="d-grid gap-2 mb-4">
+                    <button class="btn btn-outline-primary" onclick="alert('Đang tiến hành sao lưu dữ liệu SQL Server...')">
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i>Tạo Bản Sao Lưu Ngay (Backup Now)
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="alert('Vui lòng chọn file .bak để khôi phục...')">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>Khôi Phục Dữ Liệu (Restore)
+                    </button>
+                </div>
+
+                <hr>
+
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="switchMaintenance">
+                    <label class="form-check-label fw-bold text-dark" for="switchMaintenance">Bật chế độ bảo trì hệ thống</label>
+                </div>
+                <small class="text-muted">Khi bật, độc giả chỉ có thể xem trang thông báo bảo trì.</small>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG VỚI JAVA
+====================================
+Tác giả: Joshua Bloch
+Thể loại: Công nghệ thông tin
+
+CHƯƠNG 1. TỔNG QUAN VỀ LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG
+Lập trình hướng đối tượng (OOP) tổ chức chương trình thành các đối tượng.
+Mỗi đối tượng gồm thuộc tính (trạng thái) và phương thức (hành vi).
+Bốn tính chất cốt lõi: đóng gói, kế thừa, đa hình và trừu tượng.
+
+CHƯƠNG 2. LỚP VÀ ĐỐI TƯỢNG
+Lớp (class) là bản thiết kế, đối tượng (object) là thực thể được tạo ra từ lớp.
+Toán tử new dùng để khởi tạo đối tượng và cấp phát bộ nhớ trên heap.
+Hàm khởi tạo (constructor) thiết lập trạng thái ban đầu cho đối tượng.
+
+CHƯƠNG 3. KẾ THỪA VÀ ĐA HÌNH
+Kế thừa cho phép lớp con tái sử dụng mã nguồn của lớp cha.
+Đa hình cho phép cùng một lời gọi phương thức nhưng hành vi khác nhau.
+Ghi đè (override) và nạp chồng (overload) là hai dạng đa hình phổ biến.
+
+CHƯƠNG 4. INTERFACE VÀ LẬP TRÌNH TỔNG QUÁT
+Interface định nghĩa hợp đồng mà lớp triển khai phải tuân thủ.
+Collection Framework cung cấp List, Set, Map để quản lý tập hợp dữ liệu.
+Generic giúp kiểm tra kiểu dữ liệu ngay khi biên dịch.
+
+BÀI TẬP THỰC HÀNH
+1. Xây dựng lớp Sach, DocGia và lớp quan hệ MuonTra theo mô hình OOP.
+2. Cài đặt interface IQuanLy với các phương thức them, sua, xoa, timKiem.
+3. Viết chương trình quản lý thư viện số áp dụng collection và đa hình.
+
+--- Tài liệu mẫu dùng cho website thư viện số ---

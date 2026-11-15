@@ -1,0 +1,29 @@
+CLEAN ARCHITECTURE THỰC HÀNH
+=============================
+Tác giả: Robert C. Martin
+Thể loại: Công nghệ thông tin
+Giá bán: 68.000 đ
+
+CHƯƠNG 1. NGUYÊN LÝ SOLID
+S - Single Responsibility: mỗi lớp chỉ nên có một lý do để thay đổi.
+O - Open Closed: mở rộng được nhưng hạn chế sửa đổi mã nguồn hiện có.
+L - Liskov Substitution: lớp con phải thay thế được lớp cha mà không sai hành vi.
+I - Interface Segregation: chia nhỏ interface thay vì ép triển khai phương thức thừa.
+D - Dependency Inversion: phụ thuộc vào trừu tượng, không phụ thuộc vào cài đặt cụ thể.
+
+CHƯƠNG 2. RANH GIỚI KIẾN TRÚC
+Kiến trúc sạch chia hệ thống thành các vòng tròn đồng tâm.
+Vòng trong là thực thể và nghiệp vụ, vòng ngoài là giao diện và cơ sở dữ liệu.
+Nguyên tắc phụ thuộc: mã nguồn vòng ngoài được phép phụ thuộc vào vòng trong, không ngược lại.
+
+CHƯƠNG 3. PHÂN LỚP ỨNG DỤNG
+Lớp Domain chứa thực thể và quy tắc nghiệp vụ cốt lõi.
+Lớp Application điều phối ca sử dụng, lớp Infrastructure cài đặt truy cập dữ liệu.
+Lớp Presentation chỉ hiển thị và chuyển tiếp dữ liệu vào nghiệp vụ.
+
+CHƯƠNG 4. TÁI CẤU TRÚC MÃ NGUỒN
+Tách mã nguồn theo ca sử dụng giúp hệ thống dễ kiểm thử và bảo trì.
+Tiêm phụ thuộc (Dependency Injection) giúp thay thế cài đặt mà không sửa mã nguồn gọi.
+Viết kiểm thử đơn vị trước khi tái cấu trúc để đảm bảo không phá vỡ hành vi cũ.
+
+--- Tài liệu mẫu dùng cho website thư viện số ---

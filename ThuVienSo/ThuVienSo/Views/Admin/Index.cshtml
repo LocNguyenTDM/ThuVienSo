@@ -1,0 +1,226 @@
+@{
+    ViewBag.Title = "Bảng điều khiển Quản trị viên";
+
+    var tongNguoiDung = (int)(ViewBag.TongNguoiDung ?? 0);
+    var soNguoiDoc = (int)(ViewBag.SoNguoiDoc ?? 0);
+    var soThuThu = (int)(ViewBag.SoThuThu ?? 0);
+    var soAdmin = (int)(ViewBag.SoAdmin ?? 0);
+    var soBiKhoa = (int)(ViewBag.SoBiKhoa ?? 0);
+    var tongTaiLieu = (int)(ViewBag.TongTaiLieu ?? 0);
+    var taiLieuHoatDong = (int)(ViewBag.TaiLieuHoatDong ?? 0);
+    var luotXem = (int)(ViewBag.LuotXem ?? 0);
+    var luotTai = (int)(ViewBag.LuotTai ?? 0);
+    var soGiaoDichThanhCong = (int)(ViewBag.SoGiaoDichThanhCong ?? 0);
+    var doanhThu = (long)(ViewBag.DoanhThu ?? 0L);
+    var giaoDichGanDay = ViewBag.GiaoDichGanDay as List<GiaoDich> ?? new List<GiaoDich>();
+    var nhatKyGanDay = ViewBag.NhatKyGanDay as List<NhatKyHoatDong> ?? new List<NhatKyHoatDong>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="bi bi-shield-lock-fill text-danger me-2"></i>Bảng Điều Khiển Quản Trị Viên</h2>
+        <p class="text-muted mb-0">Kiểm soát tài khoản, quyền sử dụng, giao dịch mua tài liệu và toàn bộ hoạt động của hệ thống.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="@Url.Action("QuanLyNguoiDung", "Admin")" class="btn btn-danger fw-bold">
+            <i class="bi bi-people-fill me-1"></i>Quản lý người dùng
+        </a>
+        <a href="@Url.Action("BaoCaoThongKe", "Admin")" class="btn btn-outline-primary fw-bold">
+            <i class="bi bi-graph-up-arrow me-1"></i>Xem thống kê
+        </a>
+    </div>
+</div>
+
+@Html.Partial("_AdminNav")
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-success rounded-4 border-0 shadow-sm">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["ThongBao"]
+    </div>
+}
+
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>@TempData["Loi"]
+    </div>
+}
+
+<!-- Thống kê chính -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <a href="@Url.Action("QuanLyNguoiDung", "Admin")" class="card lib-card p-3 bg-white border-start border-danger border-4 h-100 text-decoration-none">
+            <span class="text-muted small fw-semibold">Tổng tài khoản</span>
+            <h3 class="fw-bold text-danger my-1">@tongNguoiDung.ToString("#,##0")</h3>
+            <small class="text-muted">
+                @soNguoiDoc độc giả • @soThuThu thủ thư • @soAdmin quản trị
+                @if (soBiKhoa > 0)
+                {
+                    <span class="text-danger fw-semibold"> • @soBiKhoa bị khóa</span>
+                }
+            </small>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-primary border-4 h-100">
+            <span class="text-muted small fw-semibold">Kho tài liệu số</span>
+            <h3 class="fw-bold text-primary my-1">@taiLieuHoatDong.ToString("#,##0")</h3>
+            <small class="text-muted">@tongTaiLieu tài liệu trong kho (mọi trạng thái)</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card lib-card p-3 bg-white border-start border-success border-4 h-100">
+            <span class="text-muted small fw-semibold">Lượt xem / tải (30 ngày)</span>
+            <h3 class="fw-bold text-success my-1">@luotXem.ToString("#,##0") <span class="fs-6 fw-normal text-muted">/ @luotTai.ToString("#,##0")</span></h3>
+            <small class="text-muted">Lượt đọc trực tuyến và lượt tải tài liệu</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <a href="@Url.Action("BaoCaoThongKe", "Admin")" class="card lib-card p-3 bg-white border-start border-warning border-4 h-100 text-decoration-none">
+            <span class="text-muted small fw-semibold">Doanh thu (30 ngày)</span>
+            <h3 class="fw-bold text-warning my-1">@doanhThu.ToString("#,##0") <span class="fs-6 fw-normal text-muted">đ</span></h3>
+            <small class="text-muted">Từ @soGiaoDichThanhCong giao dịch thành công</small>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Giao dịch gần đây -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 bg-white h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-receipt text-primary me-2"></i>Giao dịch gần đây</h5>
+                <a href="@Url.Action("GiaoDich", "Admin")" class="btn btn-sm btn-outline-primary rounded-pill fw-bold">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã</th>
+                                <th>Người mua</th>
+                                <th>Tài liệu</th>
+                                <th class="text-end">Số tiền</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (giaoDichGanDay.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">Chưa có giao dịch nào.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var gd in giaoDichGanDay)
+                                {
+                                    <tr>
+                                        <td><a href="@Url.Action("ChiTietGiaoDich", "Admin", new { id = gd.Id })" class="fw-bold text-decoration-none">#@gd.Id</a></td>
+                                        <td>
+                                            <div class="fw-semibold text-dark">@(gd.NguoiDung != null ? gd.NguoiDung.TenHienThi : "Người dùng #" + gd.UserId)</div>
+                                            <small class="text-muted">@(gd.NguoiDung != null ? gd.NguoiDung.Email : null)</small>
+                                        </td>
+                                        <td class="small">@(gd.TaiLieu != null ? gd.TaiLieu.TenTaiLieu : "Tài liệu #" + gd.TaiLieuId)</td>
+                                        <td class="text-end fw-bold text-danger">@((gd.SoTien ?? 0).ToString("#,##0")) đ</td>
+                                        <td>
+                                            @if (gd.DaThanhCong)
+                                            {
+                                                <span class="badge bg-success">Thành công</span>
+                                            }
+                                            else if (gd.TrangThai == HangSoHeThong.TrangThaiGiaoDich.DangXuLy)
+                                            {
+                                                <span class="badge bg-warning text-dark">Đang xử lý</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Thất bại</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nhật ký gần đây -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 bg-white h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-journal-text text-info me-2"></i>Hoạt động gần đây</h5>
+                <a href="@Url.Action("NhatKyHoatDong", "Admin")" class="btn btn-sm btn-outline-secondary rounded-pill fw-bold">Nhật ký đầy đủ</a>
+            </div>
+            <div class="card-body">
+                @if (nhatKyGanDay.Count == 0)
+                {
+                    <p class="text-muted text-center py-4 mb-0">Chưa có hoạt động nào được ghi nhận.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var nk in nhatKyGanDay)
+                        {
+                            <li class="d-flex gap-2 py-2 border-bottom">
+                                <i class="bi bi-dot fs-4 text-primary lh-1"></i>
+                                <div class="flex-grow-1">
+                                    <div class="small fw-semibold text-dark">@nk.HanhDong</div>
+                                    <small class="text-muted">
+                                        @(nk.NguoiDung != null ? nk.NguoiDung.TenHienThi : "Không xác định")
+                                        @if (nk.ThoiGian.HasValue)
+                                        {
+                                            <span> • @nk.ThoiGian.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                        }
+                                    </small>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lối tắt nghiệp vụ -->
+<div class="row g-4">
+    <div class="col-md-3">
+        <a href="@Url.Action("QuanLyNguoiDung", "Admin")" class="card lib-card p-4 text-decoration-none bg-white h-100">
+            <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 fs-3 mb-3 d-inline-flex" style="width: fit-content;"><i class="bi bi-person-lock"></i></div>
+            <h6 class="fw-bold text-dark mb-1">Tài khoản &amp; phân quyền</h6>
+            <small class="text-muted">Cập nhật hồ sơ, khóa/mở khóa, gán vai trò</small>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="@Url.Action("GiaoDich", "Admin")" class="card lib-card p-4 text-decoration-none bg-white h-100">
+            <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 fs-3 mb-3 d-inline-flex" style="width: fit-content;"><i class="bi bi-receipt-cutoff"></i></div>
+            <h6 class="fw-bold text-dark mb-1">Giao dịch mua tài liệu</h6>
+            <small class="text-muted">Lọc theo thời gian, xem chi tiết giao dịch</small>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="@Url.Action("BaoCaoThongKe", "Admin")" class="card lib-card p-4 text-decoration-none bg-white h-100">
+            <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 fs-3 mb-3 d-inline-flex" style="width: fit-content;"><i class="bi bi-graph-up-arrow"></i></div>
+            <h6 class="fw-bold text-dark mb-1">Thống kê &amp; doanh thu</h6>
+            <small class="text-muted">Lượt xem, lượt tải, doanh thu tài liệu trả phí</small>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="@Url.Action("NhatKyHoatDong", "Admin")" class="card lib-card p-4 text-decoration-none bg-white h-100">
+            <div class="p-3 bg-info bg-opacity-10 text-info rounded-3 fs-3 mb-3 d-inline-flex" style="width: fit-content;"><i class="bi bi-journal-text"></i></div>
+            <h6 class="fw-bold text-dark mb-1">Nhật ký hoạt động</h6>
+            <small class="text-muted">Theo dõi đăng nhập, đọc/tải, thay đổi quyền</small>
+        </a>
+    </div>
+</div>

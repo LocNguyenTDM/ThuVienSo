@@ -1,0 +1,96 @@
+@model ThuVienSo.Models.ViewModels.DangKyViewModel
+@{
+    ViewBag.Title = "Đăng ký tài khoản - Thư Viện Số";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <div class="text-center mb-4">
+                <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle d-inline-flex mb-3">
+                    <i class="bi bi-person-plus display-5"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">Đăng ký tài khoản độc giả</h4>
+                <p class="text-muted small mb-0">Tạo tài khoản miễn phí để đọc trực tuyến và tải tài liệu số.</p>
+            </div>
+
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger small py-2" })
+
+            @using (Html.BeginForm("DangKy", "Account", FormMethod.Post, new { @class = "row g-3" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="col-12">
+                    @Html.LabelFor(m => m.HoTen, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control", placeholder = "Nguyễn Văn A", autofocus = "autofocus" })
+                    @Html.ValidationMessageFor(m => m.HoTen, "", new { @class = "text-danger small d-block" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.Email, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "user@domain.com" })
+                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small d-block" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.SoDienThoai, new { @class = "form-label fw-bold" })
+                    @Html.TextBoxFor(m => m.SoDienThoai, new { @class = "form-control", placeholder = "090x xxx xxx" })
+                    @Html.ValidationMessageFor(m => m.SoDienThoai, "", new { @class = "text-danger small d-block" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.MatKhau, new { @class = "form-label fw-bold" })
+                    <div class="input-group">
+                        @Html.PasswordFor(m => m.MatKhau, new { @class = "form-control", placeholder = "Tối thiểu 6 ký tự", id = "matKhauDangKy" })
+                        <button class="btn btn-outline-secondary" type="button" data-hien-mat-khau="matKhauDangKy" title="Hiện/ẩn mật khẩu">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    @Html.ValidationMessageFor(m => m.MatKhau, "", new { @class = "text-danger small d-block" })
+                    <div class="form-text">Mật khẩu nên có ít nhất 6 ký tự, nên kết hợp chữ và số.</div>
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(m => m.XacNhanMatKhau, new { @class = "form-label fw-bold" })
+                    <div class="input-group">
+                        @Html.PasswordFor(m => m.XacNhanMatKhau, new { @class = "form-control", placeholder = "Nhập lại mật khẩu", id = "xacNhanMatKhauDangKy" })
+                        <button class="btn btn-outline-secondary" type="button" data-hien-mat-khau="xacNhanMatKhauDangKy" title="Hiện/ẩn mật khẩu">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    @Html.ValidationMessageFor(m => m.XacNhanMatKhau, "", new { @class = "text-danger small d-block" })
+                </div>
+
+                <div class="col-12 d-grid">
+                    <button type="submit" class="btn btn-success fw-bold py-2 rounded-3">
+                        <i class="bi bi-person-check me-1"></i>Đăng ký tài khoản
+                    </button>
+                </div>
+            }
+
+            <hr class="my-4">
+            <p class="text-center text-muted small mb-0">
+                Đã có tài khoản?
+                <a href="@Url.Action("DangNhap", "Account")" class="fw-bold text-decoration-none">Đăng nhập</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // Hiện/ẩn mật khẩu cho các ô nhập mật khẩu trong biểu mẫu đăng ký.
+        document.querySelectorAll('[data-hien-mat-khau]').forEach(function (nut) {
+            nut.addEventListener('click', function () {
+                var o = document.getElementById(nut.getAttribute('data-hien-mat-khau'));
+                if (!o) { return; }
+                var dangAn = o.type === 'password';
+                o.type = dangAn ? 'text' : 'password';
+                var icon = nut.querySelector('i');
+                if (icon) {
+                    icon.className = dangAn ? 'bi bi-eye-slash' : 'bi bi-eye';
+                }
+            });
+        });
+    </script>
+}

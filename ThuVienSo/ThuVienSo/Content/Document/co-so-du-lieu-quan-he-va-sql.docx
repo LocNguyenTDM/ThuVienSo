@@ -1,0 +1,31 @@
+CƠ SỞ DỮ LIỆU QUAN HỆ VÀ SQL
+=============================
+Tác giả: Ian Sommerville
+Thể loại: Công nghệ thông tin
+
+CHƯƠNG 1. MÔ HÌNH QUAN HỆ
+Cơ sở dữ liệu quan hệ tổ chức dữ liệu thành các bảng có quan hệ với nhau.
+Mỗi bảng gồm các cột (thuộc tính) và các dòng (bản ghi).
+Khoá chính (primary key) định danh duy nhất mỗi bản ghi trong bảng.
+
+CHƯƠNG 2. CHUẨN HOÁ DỮ LIỆU
+Chuẩn hoá giúp loại bỏ dư thừa dữ liệu và tránh dị thường khi cập nhật.
+Dạng chuẩn 1, 2, 3 yêu cầu thuộc tính phụ thuộc hoàn toàn vào khoá chính.
+Khoá ngoại (foreign key) duy trì toàn vẹn tham chiếu giữa các bảng.
+
+CHƯƠNG 3. TRUY VẤN SQL
+Câu lệnh SELECT kết hợp WHERE, GROUP BY, HAVING, ORDER BY để truy xuất dữ liệu.
+INNER JOIN, LEFT JOIN, RIGHT JOIN kết hợp dữ liệu từ nhiều bảng.
+Truy vấn tham số hoá giúp chống lỗi bảo mật SQL Injection.
+
+CHƯƠNG 4. CHỈ MỤC VÀ TỐI ƯU HIỆU NĂNG
+Chỉ mục (index) tăng tốc tìm kiếm nhưng làm chậm thao tác ghi dữ liệu.
+Chỉ mục bao phủ (covering index) chứa đủ cột cần truy vấn nên đọc rất nhanh.
+Cần phân tích kế hoạch thực thi để tối ưu truy vấn trên bảng lớn.
+
+CHƯƠNG 5. THỦ TỤC LƯU TRỮ VÀ TRIGGER
+Stored Procedure đóng gói các câu lệnh SQL phía máy chủ, giảm chi phí truyền dữ liệu.
+Trigger tự động thực thi khi có thao tác thêm, sửa, xoá trên bảng.
+Nghiệp vụ nhạy cảm như cấp quyền sau thanh toán nên xử lý ở máy chủ CSDL.
+
+--- Tài liệu mẫu dùng cho website thư viện số ---

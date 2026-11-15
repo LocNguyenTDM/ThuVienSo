@@ -1,0 +1,132 @@
+@model ThuVienSo.Models.GiaoDich
+@{
+    ViewBag.Title = "Kết quả giao dịch";
+
+    var coQuyenTai = ViewBag.CoQuyenTai != null && (bool)ViewBag.CoQuyenTai;
+    var tenTaiLieu = Model.TaiLieu != null ? Model.TaiLieu.TenTaiLieu : "Tài liệu";
+
+    var thanhCong = Model.TrangThai == ThuVienSo.Models.HangSoHeThong.TrangThaiGiaoDich.ThanhCong;
+    var dangXuLy = Model.TrangThai == ThuVienSo.Models.HangSoHeThong.TrangThaiGiaoDich.DangXuLy;
+
+    var lopNhan = thanhCong ? "bg-success" : (dangXuLy ? "bg-warning text-dark" : "bg-danger");
+    var nhanTrangThai = thanhCong ? "Thanh toán thành công" : (dangXuLy ? "Đang chờ thanh toán" : "Giao dịch thất bại");
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "NguoiDoc")" class="text-decoration-none">Tủ sách của tôi</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Giao dịch #@Model.Id</li>
+    </ol>
+</nav>
+
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-success rounded-4 d-flex align-items-center gap-2">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>@TempData["ThongBao"]</span>
+    </div>
+}
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-danger rounded-4 d-flex align-items-center gap-2">
+        <i class="bi bi-x-circle-fill"></i>
+        <span>@TempData["Loi"]</span>
+    </div>
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <div class="text-center mb-4">
+                <div class="p-3 @(thanhCong ? "bg-success" : (dangXuLy ? "bg-warning" : "bg-danger")) bg-opacity-10 rounded-circle d-inline-flex mb-3">
+                    <i class="bi @(thanhCong ? "bi-patch-check" : (dangXuLy ? "bi-hourglass-split" : "bi-x-octagon")) display-5 @(thanhCong ? "text-success" : (dangXuLy ? "text-warning" : "text-danger"))"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-2">@nhanTrangThai</h4>
+                <span class="badge @lopNhan">Mã giao dịch: #@Model.Id</span>
+            </div>
+
+            <div class="table-responsive mb-4">
+                <table class="table table-borderless align-middle mb-0">
+                    <tbody>
+                        <tr class="border-bottom">
+                            <td class="text-muted">Tài liệu</td>
+                            <td class="text-end fw-bold text-dark">@tenTaiLieu</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-muted">Số tiền</td>
+                            <td class="text-end fw-bold text-dark">
+                                @if (Model.SoTien.HasValue)
+                                {
+                                    @Model.SoTien.Value.ToString("#,##0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))<span> đ</span>
+                                }
+                                else
+                                {
+                                    <span>0 đ</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-muted">Thời gian</td>
+                            <td class="text-end fw-bold text-dark">
+                                @if (Model.NgayGiaoDich.HasValue)
+                                {
+                                    @Model.NgayGiaoDich.Value.ToString("dd/MM/yyyy HH:mm")
+                                }
+                                else
+                                {
+                                    <span>Chưa ghi nhận</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Trạng thái quyền tải</td>
+                            <td class="text-end">
+                                @if (coQuyenTai)
+                                {
+                                    <span class="badge bg-success">Đã được cấp</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Chưa được cấp</span>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-grid gap-2">
+                @if (thanhCong && coQuyenTai && Model.TaiLieuId.HasValue)
+                {
+                    <a href="@Url.Action("Tai", "NguoiDoc", new { id = Model.TaiLieuId.Value })" class="btn btn-success fw-bold py-2 rounded-3">
+                        <i class="bi bi-download me-1"></i>Tải tài liệu về máy
+                    </a>
+                    <a href="@Url.Action("TaiLieuSo", "NguoiDoc", new { id = Model.TaiLieuId.Value })" class="btn btn-outline-primary fw-bold py-2 rounded-3">
+                        <i class="bi bi-book-half me-1"></i>Đọc trực tuyến
+                    </a>
+                }
+                else if (dangXuLy)
+                {
+                    using (Html.BeginForm("XacNhanThanhToan", "NguoiDoc", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="giaoDichId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-warning text-dark fw-bold py-2 rounded-3 w-100">
+                            <i class="bi bi-credit-card me-1"></i>Thanh toán ngay
+                        </button>
+                    }
+                }
+                else if (Model.TaiLieuId.HasValue)
+                {
+                    <a href="@Url.Action("MuaTaiLieu", "NguoiDoc", new { id = Model.TaiLieuId.Value })" class="btn btn-danger fw-bold py-2 rounded-3">
+                        <i class="bi bi-arrow-repeat me-1"></i>Thực hiện giao dịch lại
+                    </a>
+                }
+
+                <a href="@Url.Action("LichSuMuon", "NguoiDoc")" class="btn btn-outline-secondary fw-bold py-2 rounded-3">
+                    <i class="bi bi-clock-history me-1"></i>Xem lịch sử giao dịch
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

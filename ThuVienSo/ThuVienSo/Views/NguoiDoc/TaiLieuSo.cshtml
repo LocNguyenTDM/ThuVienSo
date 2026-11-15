@@ -1,0 +1,239 @@
+@{
+    ViewBag.Title = "Trình Đọc Tài Liệu Trực Tuyến - Thư Viện Số";
+
+    var taiLieu = ViewBag.TaiLieu as TaiLieu;
+    var thongBao = ViewBag.ThongBao as string;
+    var duocDocOnline = ViewBag.DuocDocOnline as bool? ?? false;
+    var coQuyenTai = ViewBag.CoQuyenTai as bool? ?? false;
+    var tonTaiTep = ViewBag.TonTaiTep as bool? ?? false;
+    var trinhDuyetDocDuoc = ViewBag.TrinhDuyetDocDuoc as bool? ?? false;
+    var nhanDinhDang = ViewBag.NhanDinhDang as string ?? "TÀI LIỆU";
+
+    // Nhãn watermark phủ trên khung đọc: định danh người đọc để chống phát tán.
+    var tenNguoiDoc = PhienDangNhap.LayHoTen() ?? "Khách";
+    var nhanWatermark = tenNguoiDoc + " • Mã tài liệu #" + (taiLieu != null ? taiLieu.Id.ToString() : "?")
+                        + " • " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+}
+
+@if (thongBao != null)
+{
+    <div class="alert alert-warning rounded-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@thongBao
+    </div>
+
+    <a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="btn btn-primary rounded-pill fw-bold">
+        <i class="bi bi-grid-fill me-1"></i>Về kho tài liệu
+    </a>
+}
+else if (taiLieu == null)
+{
+    <div class="alert alert-warning rounded-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>Không có tài liệu để hiển thị.
+    </div>
+}
+else
+{
+    <!-- Reader Top Controls Bar -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+        <div class="card-body p-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = taiLieu.Id })" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-arrow-left me-1"></i>Quay lại chi tiết</a>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>@taiLieu.TenTaiLieu</h6>
+                    <small class="text-muted">
+                        Định dạng: @nhanDinhDang • Tác giả: @(taiLieu.TacGia != null ? taiLieu.TacGia.TenTacGia : "Đang cập nhật")
+                        • Thể loại: @(taiLieu.TheLoai != null ? taiLieu.TheLoai.TenTheLoai : "Chưa phân loại")
+                    </small>
+                </div>
+            </div>
+
+            <!-- Reader Toolbars -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge @(coQuyenTai ? "bg-success" : "bg-secondary")">
+                    @(coQuyenTai ? "Đã có quyền truy cập" : "Chưa có quyền truy cập")
+                </span>
+                @if (coQuyenTai)
+                {
+                    <a href="@Url.Action("Tai", "NguoiDoc", new { id = taiLieu.Id })" class="btn btn-sm btn-danger fw-bold">
+                        <i class="bi bi-download me-1"></i>Tải tài liệu
+                    </a>
+                }
+                @if (!coQuyenTai && !taiLieu.MienPhi)
+                {
+                    <a href="@Url.Action("MuaTaiLieu", "NguoiDoc", new { id = taiLieu.Id })" class="btn btn-sm btn-warning text-dark fw-bold">
+                        <i class="bi bi-cart-plus me-1"></i>Mua quyền tải (@taiLieu.GiaHienThi)
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    if (!duocDocOnline)
+    {
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-5 text-center">
+            <i class="bi bi-shield-lock display-3 text-danger mb-3"></i>
+            <h5 class="fw-bold">Bạn chưa có quyền đọc trực tuyến tài liệu này</h5>
+            <p class="text-muted mb-4">
+                @if (!taiLieu.QuyenDocOnline)
+                {
+                    <span>Tài liệu này không được phép đọc trực tuyến theo cấu hình của thư viện.</span>
+                }
+                else if (taiLieu.MienPhi)
+                {
+                    <span>Vui lòng đăng nhập bằng tài khoản người đọc để đọc tài liệu miễn phí.</span>
+                }
+                else
+                {
+                    <span>Tài liệu trả phí, cần mua quyền tải trước khi đọc trực tuyến.</span>
+                }
+            </p>
+            @if (!taiLieu.MienPhi && taiLieu.QuyenDocOnline)
+            {
+                <div>
+                    <a href="@Url.Action("MuaTaiLieu", "NguoiDoc", new { id = taiLieu.Id })" class="btn btn-warning text-dark fw-bold rounded-pill px-4">
+                        <i class="bi bi-cart-plus me-1"></i>Mua quyền tải — @taiLieu.GiaHienThi
+                    </a>
+                </div>
+            }
+        </div>
+    }
+    else if (!tonTaiTep)
+    {
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-5 text-center">
+            <i class="bi bi-file-earmark-x display-3 text-secondary mb-3"></i>
+            <h5 class="fw-bold">Tệp tài liệu chưa được tải lên hệ thống</h5>
+            <p class="text-muted mb-0">
+                Bản ghi tài liệu có trong CSDL nhưng tệp tin
+                <code>@taiLieu.FileUrl</code> chưa tồn tại trên máy chủ.
+                Vui lòng liên hệ thủ thư để bổ sung tệp.
+            </p>
+        </div>
+    }
+    else if (!trinhDuyetDocDuoc)
+    {
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-5 text-center">
+            <i class="bi bi-file-earmark-word display-3 text-primary mb-3"></i>
+            <h5 class="fw-bold">Tài liệu ở định dạng @nhanDinhDang</h5>
+            <p class="text-muted mb-4">
+                Trình duyệt không hiển thị trực tiếp được tệp <code>@nhanDinhDang</code>.
+                Vui lòng tải tệp về máy và mở bằng ứng dụng phù hợp (ví dụ Microsoft Word).
+            </p>
+            @if (coQuyenTai)
+            {
+                <a href="@Url.Action("Tai", "NguoiDoc", new { id = taiLieu.Id })" class="btn btn-primary fw-bold rounded-pill px-4">
+                    <i class="bi bi-download me-1"></i>Tải tài liệu về máy
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Main Online E-Book Reader Container -->
+        <div class="row g-4">
+            <!-- Sidebar: thông tin tài liệu (thay cho mục lục tĩnh) -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 bg-white p-3">
+                    <h6 class="fw-bold text-dark mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Thông Tin Tài Liệu</h6>
+                    <ul class="list-group list-group-flush small">
+                        <li class="list-group-item border-0 px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted">Tên tài liệu</span>
+                            <span class="fw-bold text-end">@taiLieu.TenTaiLieu</span>
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted">Thể loại</span>
+                            <span class="fw-bold">@(taiLieu.TheLoai != null ? taiLieu.TheLoai.TenTheLoai : "Chưa phân loại")</span>
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted">Tác giả</span>
+                            <span class="fw-bold">@(taiLieu.TacGia != null ? taiLieu.TacGia.TenTacGia : "Đang cập nhật")</span>
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted">Định dạng</span>
+                            <span class="fw-bold">@nhanDinhDang</span>
+                        </li>
+                        <li class="list-group-item border-0 px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted">Giá</span>
+                            <span class="fw-bold text-primary">@taiLieu.GiaHienThi</span>
+                        </li>
+                    </ul>
+
+                    @if (!string.IsNullOrWhiteSpace(taiLieu.MoTa))
+                    {
+                        <hr class="my-2" />
+                        <p class="small text-muted mb-0">@taiLieu.MoTa</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Reader Screen Area -->
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white position-relative" style="min-height: 620px;">
+                    <iframe src="@Url.Action("NoiDung", "NguoiDoc", new { id = taiLieu.Id })"
+                            title="@taiLieu.TenTaiLieu"
+                            style="width: 100%; height: 78vh; border: 0; background-color: #ffffff;"></iframe>
+
+                    <!-- Lớp watermark phủ trên khung đọc (không chặn thao tác cuộn/đọc) -->
+                    <div class="watermark-layer" aria-hidden="true">
+                        @for (var i = 0; i < 30; i++)
+                        {
+                            <span class="watermark-item">@nhanWatermark</span>
+                        }
+                    </div>
+
+                    <div class="watermark-note">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Bản đọc trực tuyến được đánh dấu watermark theo tài khoản đang đăng nhập.
+                    </div>
+                </div>
+                <p class="text-muted small mt-2 mb-0">
+                    <i class="bi bi-info-circle me-1"></i>Nội dung được truyền qua máy chủ sau khi kiểm tra quyền truy cập của tài khoản đang đăng nhập.
+                </p>
+            </div>
+        </div>
+    }
+}
+
+<style>
+    .watermark-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 3;
+        pointer-events: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-content: space-around;
+        justify-content: space-around;
+        overflow: hidden;
+        padding: 1rem;
+        gap: 2rem 1.5rem;
+    }
+
+    .watermark-item {
+        flex: 0 0 auto;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+        color: rgba(15, 23, 42, 0.13);
+        transform: rotate(-30deg);
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .watermark-note {
+        position: absolute;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        z-index: 4;
+        pointer-events: none;
+        background: rgba(15, 23, 42, 0.65);
+        color: #fff;
+        font-size: 0.7rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+    }
+</style>
+

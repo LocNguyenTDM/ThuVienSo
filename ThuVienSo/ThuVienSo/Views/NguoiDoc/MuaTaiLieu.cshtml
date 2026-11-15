@@ -1,0 +1,134 @@
+@model ThuVienSo.Models.TaiLieu
+@{
+    ViewBag.Title = "Mua quyền tải tài liệu";
+
+    var giaoDichDangXuLy = ViewBag.GiaoDichDangXuLy as ThuVienSo.Models.GiaoDich;
+    var loiKetNoi = ViewBag.LoiKetNoi as string;
+    var nhanDinhDang = TepTaiLieuHelper.LayNhanDinhDang(Model.FileUrl);
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="@Url.Action("TimKiemSach", "NguoiDoc")" class="text-decoration-none">Kho E-Book</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = Model.Id })" class="text-decoration-none">@Model.TenTaiLieu</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Mua quyền tải</li>
+    </ol>
+</nav>
+
+@if (!string.IsNullOrEmpty(loiKetNoi))
+{
+    <div class="alert alert-warning rounded-4 d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>@loiKetNoi</span>
+    </div>
+}
+
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-danger rounded-4 d-flex align-items-center gap-2">
+        <i class="bi bi-x-circle-fill"></i>
+        <span>@TempData["Loi"]</span>
+    </div>
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <div class="text-center mb-4">
+                <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex mb-3">
+                    <i class="bi bi-cart-check display-5"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">Mua quyền tải tài liệu</h4>
+                <p class="text-muted small mb-0">Sau khi thanh toán thành công, hệ thống tự động cấp quyền tải cho tài khoản của bạn.</p>
+            </div>
+
+            <!-- Thông tin đơn hàng -->
+            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-4 mb-4">
+                <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 fs-3">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="fw-bold text-dark mb-1">@Model.TenTaiLieu</h6>
+                    <small class="text-muted">
+                        Định dạng: @nhanDinhDang
+                        @if (Model.TacGia != null && !string.IsNullOrEmpty(Model.TacGia.TenTacGia))
+                        {
+                            <span> • Tác giả: @Model.TacGia.TenTacGia</span>
+                        }
+                    </small>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted d-block">Giá bán</small>
+                    <strong class="text-danger fs-5">@Model.GiaHienThi</strong>
+                </div>
+            </div>
+
+            <div class="table-responsive mb-4">
+                <table class="table table-borderless align-middle mb-0">
+                    <tbody>
+                        <tr class="border-bottom">
+                            <td class="text-muted">Tạm tính</td>
+                            <td class="text-end fw-bold text-dark">@Model.GiaHienThi</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-muted">Phí xử lý</td>
+                            <td class="text-end fw-bold text-dark">0 đ</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-dark">Tổng thanh toán</td>
+                            <td class="text-end fw-bold text-danger fs-5">@Model.GiaHienThi</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            @if (giaoDichDangXuLy != null)
+            {
+                <div class="alert alert-warning small d-flex align-items-start gap-2">
+                    <i class="bi bi-hourglass-split"></i>
+                    <div>
+                        Bạn đã có đơn hàng <strong>#@giaoDichDangXuLy.Id</strong> cho tài liệu này đang chờ thanh toán.
+                        Vui lòng hoàn tất thanh toán bên dưới.
+                    </div>
+                </div>
+
+                using (Html.BeginForm("XacNhanThanhToan", "NguoiDoc", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="giaoDichId" value="@giaoDichDangXuLy.Id" />
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success fw-bold py-2 rounded-3">
+                            <i class="bi bi-credit-card me-1"></i>Thanh toán ngay
+                        </button>
+                        <a href="@Url.Action("KetQuaGiaoDich", "NguoiDoc", new { id = giaoDichDangXuLy.Id })" class="btn btn-outline-secondary fw-bold py-2 rounded-3">
+                            <i class="bi bi-receipt me-1"></i>Xem chi tiết đơn hàng
+                        </a>
+                    </div>
+                }
+            }
+            else
+            {
+                using (Html.BeginForm("TaoGiaoDich", "NguoiDoc", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="taiLieuId" value="@Model.Id" />
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger fw-bold py-2 rounded-3">
+                            <i class="bi bi-bag-check me-1"></i>Tiến hành đặt mua
+                        </button>
+                        <a href="@Url.Action("ChiTietTaiLieu", "NguoiDoc", new { id = Model.Id })" class="btn btn-outline-secondary fw-bold py-2 rounded-3">
+                            <i class="bi bi-arrow-left me-1"></i>Quay lại chi tiết tài liệu
+                        </a>
+                    </div>
+                }
+            }
+
+            <div class="alert alert-light border small mt-4 mb-0">
+                <i class="bi bi-info-circle text-primary me-1"></i>
+                <strong>Giới hạn mô phỏng:</strong> hệ thống chưa tích hợp cổng thanh toán thực tế (VNPay / MoMo / ngân hàng).
+                Bước xác nhận thanh toán hiện được mô phỏng ở phía máy chủ để minh hoạ luồng nghiệp vụ; khi triển khai thực tế
+                phải thay bằng kiểm tra chữ ký / callback do cổng thanh toán trả về.
+            </div>
+        </div>
+    </div>
+</div>

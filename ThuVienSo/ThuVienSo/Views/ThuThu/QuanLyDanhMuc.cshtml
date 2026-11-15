@@ -1,0 +1,317 @@
+@{
+    ViewBag.Title = "Quản lý tác giả & thể loại";
+
+    var danhSachTheLoai = ViewBag.DanhSachTheLoai as List<TheLoai> ?? new List<TheLoai>();
+    var danhSachTacGia = ViewBag.DanhSachTacGia as List<TacGia> ?? new List<TacGia>();
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-tags text-success me-2"></i>Quản lý Tác giả &amp; Thể loại</h2>
+            <p class="text-muted mb-0">Thêm, sửa, xoá danh mục tác giả và thể loại dùng khi biên tập tài liệu.</p>
+        </div>
+        <a href="@Url.Action("Index", "ThuThu")" class="btn btn-outline-secondary rounded-pill fw-bold">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại
+        </a>
+    </div>
+
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Loi"]
+        </div>
+    }
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success rounded-4 border-0 shadow-sm mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["ThongBao"]
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- THỂ LOẠI -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 bg-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0">
+                            <i class="bi bi-collection text-primary me-2"></i>Thể loại
+                            <span class="badge bg-primary bg-opacity-10 text-primary ms-1">@danhSachTheLoai.Count</span>
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-primary fw-bold rounded-pill" data-bs-toggle="modal" data-bs-target="#modalThemTheLoai">
+                            <i class="bi bi-plus-lg me-1"></i>Thêm thể loại
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên thể loại</th>
+                                    <th>Mô tả</th>
+                                    <th class="text-center" style="width:110px;">Tài liệu</th>
+                                    <th class="text-end" style="width:110px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (danhSachTheLoai.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">Chưa có thể loại nào.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    foreach (var tl in danhSachTheLoai)
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold text-dark">@tl.TenTheLoai</td>
+                                            <td class="text-muted small">@tl.MoTa</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary">@tl.SoTaiLieu</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill"
+                                                        data-bs-toggle="modal" data-bs-target="#modalSuaTheLoai"
+                                                        data-sua-id="@tl.Id"
+                                                        data-sua-ten="@tl.TenTheLoai"
+                                                        data-sua-mota="@tl.MoTa">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                @using (Html.BeginForm("XoaTheLoai", "ThuThu", FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('Xoá thể loại " + System.Web.HttpUtility.JavaScriptStringEncode(tl.TenTheLoai) + "?');" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@tl.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TÁC GIẢ -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 bg-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0">
+                            <i class="bi bi-person-badge text-success me-2"></i>Tác giả
+                            <span class="badge bg-success bg-opacity-10 text-success ms-1">@danhSachTacGia.Count</span>
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-success fw-bold rounded-pill" data-bs-toggle="modal" data-bs-target="#modalThemTacGia">
+                            <i class="bi bi-plus-lg me-1"></i>Thêm tác giả
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên tác giả</th>
+                                    <th>Quốc tịch</th>
+                                    <th class="text-center" style="width:110px;">Tài liệu</th>
+                                    <th class="text-end" style="width:110px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (danhSachTacGia.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">Chưa có tác giả nào.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    foreach (var tg in danhSachTacGia)
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold text-dark">@tg.TenTacGia</td>
+                                            <td class="text-muted small">@tg.QuocTich</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary">@tg.SoTaiLieu</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill"
+                                                        data-bs-toggle="modal" data-bs-target="#modalSuaTacGia"
+                                                        data-sua-id="@tg.Id"
+                                                        data-sua-ten="@tg.TenTacGia"
+                                                        data-sua-quoctich="@tg.QuocTich">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                @using (Html.BeginForm("XoaTacGia", "ThuThu", FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('Xoá tác giả " + System.Web.HttpUtility.JavaScriptStringEncode(tg.TenTacGia) + "?');" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@tg.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm thể loại -->
+<div class="modal fade" id="modalThemTheLoai" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            @using (Html.BeginForm("ThemTheLoai", "ThuThu", FormMethod.Post, new { @class = "mb-0" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Thêm thể loại</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên thể loại <span class="text-danger">*</span></label>
+                        <input type="text" name="tenTheLoai" class="form-control" maxlength="100" required />
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold">Mô tả</label>
+                        <textarea name="moTa" class="form-control" rows="3" maxlength="255"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="bi bi-check-circle me-1"></i>Thêm</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal sửa thể loại -->
+<div class="modal fade" id="modalSuaTheLoai" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            @using (Html.BeginForm("SuaTheLoai", "ThuThu", FormMethod.Post, new { @class = "mb-0" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="suaTheLoaiId" value="" />
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Cập nhật thể loại</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên thể loại <span class="text-danger">*</span></label>
+                        <input type="text" name="tenTheLoai" id="suaTheLoaiTen" class="form-control" maxlength="100" required />
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold">Mô tả</label>
+                        <textarea name="moTa" id="suaTheLoaiMoTa" class="form-control" rows="3" maxlength="255"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="bi bi-save me-1"></i>Lưu thay đổi</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm tác giả -->
+<div class="modal fade" id="modalThemTacGia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            @using (Html.BeginForm("ThemTacGia", "ThuThu", FormMethod.Post, new { @class = "mb-0" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Thêm tác giả</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên tác giả <span class="text-danger">*</span></label>
+                        <input type="text" name="tenTacGia" class="form-control" maxlength="100" required />
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold">Quốc tịch</label>
+                        <input type="text" name="quocTich" class="form-control" maxlength="50" placeholder="Ví dụ: Việt Nam" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="bi bi-check-circle me-1"></i>Thêm</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal sửa tác giả -->
+<div class="modal fade" id="modalSuaTacGia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0">
+            @using (Html.BeginForm("SuaTacGia", "ThuThu", FormMethod.Post, new { @class = "mb-0" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="suaTacGiaId" value="" />
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Cập nhật tác giả</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên tác giả <span class="text-danger">*</span></label>
+                        <input type="text" name="tenTacGia" id="suaTacGiaTen" class="form-control" maxlength="100" required />
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold">Quốc tịch</label>
+                        <input type="text" name="quocTich" id="suaTacGiaQuocTich" class="form-control" maxlength="50" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="bi bi-save me-1"></i>Lưu thay đổi</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var modalTheLoai = document.getElementById('modalSuaTheLoai');
+        if (modalTheLoai) {
+            modalTheLoai.addEventListener('show.bs.modal', function (event) {
+                var nut = event.relatedTarget;
+                if (!nut) return;
+                document.getElementById('suaTheLoaiId').value = nut.getAttribute('data-sua-id') || '';
+                document.getElementById('suaTheLoaiTen').value = nut.getAttribute('data-sua-ten') || '';
+                document.getElementById('suaTheLoaiMoTa').value = nut.getAttribute('data-sua-mota') || '';
+            });
+        }
+
+        var modalTacGia = document.getElementById('modalSuaTacGia');
+        if (modalTacGia) {
+            modalTacGia.addEventListener('show.bs.modal', function (event) {
+                var nut = event.relatedTarget;
+                if (!nut) return;
+                document.getElementById('suaTacGiaId').value = nut.getAttribute('data-sua-id') || '';
+                document.getElementById('suaTacGiaTen').value = nut.getAttribute('data-sua-ten') || '';
+                document.getElementById('suaTacGiaQuocTich').value = nut.getAttribute('data-sua-quoctich') || '';
+            });
+        }
+    })();
+</script>

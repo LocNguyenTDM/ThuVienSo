@@ -1,0 +1,166 @@
+@{
+    ViewBag.Title = "Giao dịch mua tài liệu";
+
+    var danhSach = ViewBag.DanhSachGiaoDich as List<GiaoDich> ?? new List<GiaoDich>();
+
+    var tuNgay = (DateTime)(ViewBag.TuNgay ?? DateTime.Today.AddDays(-29));
+    var denNgay = (DateTime)(ViewBag.DenNgay ?? DateTime.Today);
+    var trangThaiLoc = ViewBag.TrangThai as string;
+    var tuKhoa = ViewBag.TuKhoa as string;
+
+    var tongGiaoDich = (int)(ViewBag.TongGiaoDich ?? 0);
+    var soThanhCong = (int)(ViewBag.SoThanhCong ?? 0);
+    var soDangXuLy = (int)(ViewBag.SoDangXuLy ?? 0);
+    var soThatBai = (int)(ViewBag.SoThatBai ?? 0);
+    var doanhThu = (long)(ViewBag.DoanhThu ?? 0L);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="bi bi-receipt-cutoff text-success me-2"></i>Theo Dõi Giao Dịch Mua Tài Liệu</h2>
+        <p class="text-muted mb-0">Lọc giao dịch theo khoảng thời gian, trạng thái và xem chi tiết từng giao dịch.</p>
+    </div>
+</div>
+
+@Html.Partial("_AdminNav")
+
+@if (ViewBag.LoiKetNoi != null)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card lib-card p-3 bg-white border-start border-primary border-4 h-100">
+            <span class="text-muted small fw-semibold">Tổng giao dịch</span>
+            <h4 class="fw-bold text-primary my-1">@tongGiaoDich.ToString("#,##0")</h4>
+            <small class="text-muted">Trong khoảng thời gian đã chọn</small>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card lib-card p-3 bg-white border-start border-success border-4 h-100">
+            <span class="text-muted small fw-semibold">Thành công</span>
+            <h4 class="fw-bold text-success my-1">@soThanhCong.ToString("#,##0")</h4>
+            <small class="text-muted">Giao dịch hoàn tất (THANH_CONG)</small>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card lib-card p-3 bg-white border-start border-warning border-4 h-100">
+            <span class="text-muted small fw-semibold">Đang xử lý / Thất bại</span>
+            <h4 class="fw-bold text-warning my-1">@soDangXuLy.ToString("#,##0") <span class="fs-6 fw-normal text-muted">/ @soThatBai.ToString("#,##0")</span></h4>
+            <small class="text-muted">Chưa hoàn tất — không tính doanh thu</small>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card lib-card p-3 bg-white border-start border-danger border-4 h-100">
+            <span class="text-muted small fw-semibold">Doanh thu ghi nhận</span>
+            <h4 class="fw-bold text-danger my-1">@doanhThu.ToString("#,##0") <span class="fs-6 fw-normal text-muted">đ</span></h4>
+            <small class="text-muted">Chỉ từ giao dịch thành công</small>
+        </div>
+    </div>
+</div>
+
+<!-- Bộ lọc -->
+<div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+    <div class="card-body">
+        @using (Html.BeginForm("GiaoDich", "Admin", FormMethod.Get, new { @class = "row g-2 align-items-end" }))
+        {
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small">Từ ngày</label>
+                <input type="date" name="tuNgay" value="@tuNgay.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small">Đến ngày</label>
+                <input type="date" name="denNgay" value="@denNgay.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small">Trạng thái</label>
+                <select name="trangThai" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="@HangSoHeThong.TrangThaiGiaoDich.ThanhCong" @(trangThaiLoc == HangSoHeThong.TrangThaiGiaoDich.ThanhCong ? "selected" : null)>Thành công</option>
+                    <option value="@HangSoHeThong.TrangThaiGiaoDich.DangXuLy" @(trangThaiLoc == HangSoHeThong.TrangThaiGiaoDich.DangXuLy ? "selected" : null)>Đang xử lý</option>
+                    <option value="@HangSoHeThong.TrangThaiGiaoDich.ThatBai" @(trangThaiLoc == HangSoHeThong.TrangThaiGiaoDich.ThatBai ? "selected" : null)>Thất bại</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small">Từ khóa</label>
+                <input type="text" name="tuKhoa" value="@tuKhoa" class="form-control"
+                       placeholder="Mã GD, người mua, tài liệu..." />
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-success fw-bold"><i class="bi bi-funnel me-1"></i>Lọc giao dịch</button>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Danh sách giao dịch -->
+<div class="card border-0 shadow-sm rounded-4 bg-white">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Mã GD</th>
+                        <th>Người mua</th>
+                        <th>Tài liệu</th>
+                        <th class="text-end">Số tiền</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (danhSach.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">Không có giao dịch nào phù hợp với bộ lọc.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var gd in danhSach)
+                        {
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">#@gd.Id</td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@(gd.NguoiDung != null ? gd.NguoiDung.TenHienThi : "Người dùng #" + gd.UserId)</div>
+                                    <small class="text-muted">@(gd.NguoiDung != null ? gd.NguoiDung.Email : null)</small>
+                                </td>
+                                <td class="small">@(gd.TaiLieu != null ? gd.TaiLieu.TenTaiLieu : "Tài liệu #" + gd.TaiLieuId)</td>
+                                <td class="text-end fw-bold text-danger">@((gd.SoTien ?? 0).ToString("#,##0")) đ</td>
+                                <td class="text-nowrap">@(gd.NgayGiaoDich.HasValue ? gd.NgayGiaoDich.Value.ToString("dd/MM/yyyy HH:mm") : "Chưa ghi nhận")</td>
+                                <td>
+                                    @if (gd.DaThanhCong)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Thành công</span>
+                                    }
+                                    else if (gd.TrangThai == HangSoHeThong.TrangThaiGiaoDich.DangXuLy)
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Đang xử lý</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Thất bại</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-3">
+                                    <a href="@Url.Action("ChiTietGiaoDich", "Admin", new { id = gd.Id })"
+                                       class="btn btn-sm btn-outline-primary fw-bold">
+                                        <i class="bi bi-eye me-1"></i>Chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white small text-muted">
+        Hiển thị tối đa 500 giao dịch gần nhất trong khoảng @tuNgay.ToString("dd/MM/yyyy") – @denNgay.ToString("dd/MM/yyyy").
+        Doanh thu chỉ được tính từ giao dịch <strong>THANH_CONG</strong>; giao dịch đang xử lý hoặc thất bại không được tính.
+    </div>
+</div>

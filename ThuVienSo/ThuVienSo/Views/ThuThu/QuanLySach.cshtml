@@ -1,0 +1,370 @@
+@{
+    ViewBag.Title = "Quản lý Danh mục Sách & Tài liệu";
+
+    var danhSachTaiLieu = ViewBag.DanhSachTaiLieu as List<TaiLieu> ?? new List<TaiLieu>();
+    var danhSachTheLoai = ViewBag.DanhSachTheLoai as List<TheLoai> ?? new List<TheLoai>();
+    var danhSachTacGia = ViewBag.DanhSachTacGia as List<TacGia> ?? new List<TacGia>();
+
+    var tuKhoa = ViewBag.TuKhoa as string;
+    var theLoaiId = ViewBag.TheLoaiId as int?;
+    var trangThai = ViewBag.TrangThai as string;
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-file-earmark-arrow-up text-success me-2"></i>Quản lý Danh mục Tài liệu số</h2>
+            <p class="text-muted mb-0">Thêm mới, biên tập thông tin, cập nhật quyền đọc/tải và tệp đính kèm của tài liệu.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Index", "ThuThu")" class="btn btn-outline-secondary rounded-pill fw-bold">
+                <i class="bi bi-arrow-left me-1"></i>Quay lại
+            </a>
+            <a href="@Url.Action("QuanLyDanhMuc", "ThuThu")" class="btn btn-outline-primary rounded-pill fw-bold">
+                <i class="bi bi-tags me-1"></i>Tác giả &amp; thể loại
+            </a>
+            <button type="button" class="btn btn-success fw-bold rounded-pill" data-bs-toggle="modal" data-bs-target="#modalThemSach">
+                <i class="bi bi-cloud-upload me-1"></i>Thêm tài liệu mới
+            </button>
+        </div>
+    </div>
+
+    @if (ViewBag.LoiKetNoi != null)
+    {
+        <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@ViewBag.LoiKetNoi
+        </div>
+    }
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Loi"]
+        </div>
+    }
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success rounded-4 border-0 shadow-sm mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["ThongBao"]
+        </div>
+    }
+
+    <!-- Bộ lọc -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+        <div class="card-body">
+            @using (Html.BeginForm("QuanLySach", "ThuThu", FormMethod.Get, new { @class = "row g-2 align-items-end" }))
+            {
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold small">Từ khóa (tên tài liệu / tác giả)</label>
+                    <input type="text" name="tuKhoa" value="@tuKhoa" class="form-control" placeholder="Nhập từ khóa..." />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold small">Thể loại</label>
+                    <select name="theLoaiId" class="form-select">
+                        <option value="">-- Tất cả thể loại --</option>
+                        @foreach (var tl in danhSachTheLoai)
+                        {
+                            <option value="@tl.Id" @(theLoaiId == tl.Id ? "selected" : null)>@tl.TenTheLoai</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold small">Trạng thái</label>
+                    <select name="trangThai" class="form-select">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="HOAT_DONG" @(trangThai == "HOAT_DONG" ? "selected" : null)>Đang phát hành</option>
+                        <option value="CHO_DUYET" @(trangThai == "CHO_DUYET" ? "selected" : null)>Chờ duyệt</option>
+                        <option value="NGUNG_HOAT_DONG" @(trangThai == "NGUNG_HOAT_DONG" ? "selected" : null)>Ngừng hoạt động</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="bi bi-search me-1"></i>Lọc</button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Danh sách -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        <div class="card-header bg-white border-0 pt-3 px-3">
+            <span class="fw-bold text-dark">Tổng cộng: @danhSachTaiLieu.Count tài liệu</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Tên tài liệu</th>
+                        <th>Thể loại</th>
+                        <th>Giá bán</th>
+                        <th class="text-center">Quyền</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (danhSachTaiLieu.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-inboxes display-4 text-muted d-block mb-3"></i>
+                                <h6 class="text-muted fw-bold">Không tìm thấy tài liệu nào phù hợp</h6>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in danhSachTaiLieu)
+                        {
+                            var nhanDinhDang = TepTaiLieuHelper.LayNhanDinhDang(item.FileUrl);
+                            var trangThaiHienThi = item.TrangThai == HangSoHeThong.TrangThaiTaiLieu.HoatDong
+                                ? new { Css = "bg-success", Text = "Đang phát hành" }
+                                : item.TrangThai == HangSoHeThong.TrangThaiTaiLieu.ChoDuyet
+                                    ? new { Css = "bg-warning text-dark", Text = "Chờ duyệt" }
+                                    : new { Css = "bg-secondary", Text = "Ngừng hoạt động" };
+
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-bold text-dark">@item.TenTaiLieu</div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-person me-1"></i>@(item.TacGia != null ? item.TacGia.TenTacGia : "Đang cập nhật")
+                                        <span class="ms-2"><i class="bi bi-file-earmark me-1"></i>@nhanDinhDang</span>
+                                    </small>
+                                    @if (!string.IsNullOrWhiteSpace(item.LyDoTuChoi))
+                                    {
+                                        <div class="small text-danger mt-1"><i class="bi bi-info-circle me-1"></i>Lý do từ chối: @item.LyDoTuChoi</div>
+                                    }
+                                </td>
+                                <td><span class="badge bg-primary bg-opacity-10 text-primary">@(item.TheLoai != null ? item.TheLoai.TenTheLoai : "N/A")</span></td>
+                                <td class="fw-semibold @(item.MienPhi ? "text-success" : "text-dark")">@item.GiaHienThi</td>
+                                <td class="text-center">
+                                    <span class="badge @(item.QuyenDocOnline ? "bg-success bg-opacity-10 text-success" : "bg-light text-muted border")" title="Đọc trực tuyến">
+                                        <i class="bi bi-book"></i>
+                                    </span>
+                                    <span class="badge @(item.QuyenTai ? "bg-danger bg-opacity-10 text-danger" : "bg-light text-muted border")" title="Tải xuống">
+                                        <i class="bi bi-download"></i>
+                                    </span>
+                                </td>
+                                <td class="text-center"><span class="badge @trangThaiHienThi.Css">@trangThaiHienThi.Text</span></td>
+                                <td class="text-center pe-3">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" title="Sửa"
+                                                data-bs-toggle="modal" data-bs-target="#modalSuaSach"
+                                                data-sua-id="@item.Id"
+                                                data-sua-ten="@item.TenTaiLieu"
+                                                data-sua-mota="@item.MoTa"
+                                                data-sua-gia="@item.GiaBan"
+                                                data-sua-theloai="@item.TheLoaiId"
+                                                data-sua-tacgia="@item.TacGiaId"
+                                                data-sua-doc="@(item.QuyenDocOnline ? "true" : "false")"
+                                                data-sua-tai="@(item.QuyenTai ? "true" : "false")"
+                                                data-sua-trangthai="@item.TrangThai"
+                                                data-sua-fileurl="@item.FileUrl">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        @using (Html.BeginForm("XoaSach", "ThuThu", new { id = item.Id }, FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"
+                                                    onclick="return confirm('Xóa tài liệu \"@item.TenTaiLieu\"? Nếu tài liệu đã phát sinh giao dịch, hãy chuyển sang trạng thái Ngừng hoạt động.');">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm tài liệu -->
+<div class="modal fade" id="modalThemSach" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4 border-0">
+            @using (Html.BeginForm("ThemSach", "ThuThu", FormMethod.Post, new { enctype = "multipart/form-data", @class = "mb-0" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-cloud-upload me-2"></i>Thêm tài liệu số mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Tên tài liệu <span class="text-danger">*</span></label>
+                            <input type="text" name="tenTaiLieu" class="form-control" maxlength="255" required placeholder="Nhập tên tài liệu..." />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Mô tả / Tóm tắt nội dung</label>
+                            <textarea name="moTa" class="form-control" rows="3" placeholder="Giới thiệu ngắn về nội dung tài liệu..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Thể loại</label>
+                            <select name="theLoaiId" class="form-select">
+                                <option value="">-- Chưa phân loại --</option>
+                                @foreach (var tl in danhSachTheLoai)
+                                {
+                                    <option value="@tl.Id">@tl.TenTheLoai</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tác giả</label>
+                            <select name="tacGiaId" class="form-select">
+                                <option value="">-- Chưa xác định --</option>
+                                @foreach (var tg in danhSachTacGia)
+                                {
+                                    <option value="@tg.Id">@tg.TenTacGia</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Giá bán (VNĐ)</label>
+                            <input type="number" name="giaBan" class="form-control" min="0" step="1000" value="0" />
+                            <div class="form-text">Nhập 0 nếu tài liệu miễn phí.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold d-block">Quyền truy cập</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="quyenDocOnline" value="true" id="themQuyenDoc" checked />
+                                <label class="form-check-label" for="themQuyenDoc">Cho phép đọc trực tuyến</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="quyenTai" value="true" id="themQuyenTai" checked />
+                                <label class="form-check-label" for="themQuyenTai">Cho phép tải xuống</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Tệp tài liệu (PDF / DOC / DOCX / EPUB)</label>
+                            <input type="file" name="tepTaiLieu" class="form-control" accept=".pdf,.doc,.docx,.epub" />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Hoặc dùng tệp đã có trong thư mục lưu trữ</label>
+                            <input type="text" name="duongDanTep" class="form-control" placeholder="Ví dụ: Content/Document/giao-trinh-lap-trinh.pdf" />
+                            <div class="form-text">
+                                Tệp phải nằm trong thư mục <code>Content/Document</code>. Có thể nhập tên tệp trần
+                                (ví dụ <code>giao-trinh-lap-trinh.pdf</code>). Nếu chọn tệp tải lên, mục này sẽ bị bỏ qua.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success fw-bold"><i class="bi bi-check-circle me-1"></i>Thêm &amp; phát hành</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal sửa tài liệu -->
+<div class="modal fade" id="modalSuaSach" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4 border-0">
+            @using (Html.BeginForm("SuaSach", "ThuThu", FormMethod.Post, new { enctype = "multipart/form-data", @class = "mb-0" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="suaId" value="" />
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Cập nhật tài liệu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Tên tài liệu <span class="text-danger">*</span></label>
+                            <input type="text" name="tenTaiLieu" id="suaTen" class="form-control" maxlength="255" required />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Mô tả / Tóm tắt nội dung</label>
+                            <textarea name="moTa" id="suaMoTa" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Tệp tài liệu (PDF / DOC / DOCX / EPUB)</label>
+                            <input type="file" name="tepTaiLieu" id="suaTepTaiLieu" class="form-control"
+                                   accept=".pdf,.doc,.docx,.epub" />
+                            <div class="form-text">
+                                Tệp tải lên được lưu vào <code>Content/Document</code> và đặt tên theo tên tài liệu.
+                                Để trống nếu không muốn thay đổi tệp hiện tại.
+                            </div>
+                            <div class="form-text">
+                                Tệp hiện tại: <code id="suaTepHienTai"></code>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Thể loại</label>
+                            <select name="theLoaiId" id="suaTheLoai" class="form-select">
+                                <option value="">-- Chưa phân loại --</option>
+                                @foreach (var tl in danhSachTheLoai)
+                                {
+                                    <option value="@tl.Id">@tl.TenTheLoai</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tác giả</label>
+                            <select name="tacGiaId" id="suaTacGia" class="form-select">
+                                <option value="">-- Chưa xác định --</option>
+                                @foreach (var tg in danhSachTacGia)
+                                {
+                                    <option value="@tg.Id">@tg.TenTacGia</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Giá bán (VNĐ)</label>
+                            <input type="number" name="giaBan" id="suaGia" class="form-control" min="0" step="1000" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold d-block">Quyền truy cập</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="quyenDocOnline" value="true" id="suaQuyenDoc" />
+                                <label class="form-check-label" for="suaQuyenDoc">Đọc trực tuyến</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="quyenTai" value="true" id="suaQuyenTai" />
+                                <label class="form-check-label" for="suaQuyenTai">Tải xuống</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Trạng thái</label>
+                            <select name="trangThai" id="suaTrangThai" class="form-select">
+                                <option value="HOAT_DONG">Đang phát hành</option>
+                                <option value="CHO_DUYET">Chờ duyệt</option>
+                                <option value="NGUNG_HOAT_DONG">Ngừng hoạt động</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="bi bi-save me-1"></i>Lưu thay đổi</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var modal = document.getElementById('modalSuaSach');
+        if (!modal) return;
+        modal.addEventListener('show.bs.modal', function (event) {
+            var nut = event.relatedTarget;
+            if (!nut) return;
+            document.getElementById('suaId').value = nut.getAttribute('data-sua-id') || '';
+            document.getElementById('suaTen').value = nut.getAttribute('data-sua-ten') || '';
+            document.getElementById('suaMoTa').value = nut.getAttribute('data-sua-mota') || '';
+            document.getElementById('suaGia').value = nut.getAttribute('data-sua-gia') || '0';
+            document.getElementById('suaTheLoai').value = nut.getAttribute('data-sua-theloai') || '';
+            document.getElementById('suaTacGia').value = nut.getAttribute('data-sua-tacgia') || '';
+            document.getElementById('suaQuyenDoc').checked = nut.getAttribute('data-sua-doc') === 'true';
+            document.getElementById('suaQuyenTai').checked = nut.getAttribute('data-sua-tai') === 'true';
+            document.getElementById('suaTrangThai').value = nut.getAttribute('data-sua-trangthai') || 'HOAT_DONG';
+            document.getElementById('suaTepHienTai').textContent = nut.getAttribute('data-sua-fileurl') || '(chưa có)';
+            document.getElementById('suaTepTaiLieu').value = '';
+        });
+    })();
+</script>
